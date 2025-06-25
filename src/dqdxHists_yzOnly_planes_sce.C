@@ -398,8 +398,8 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
     
     l1->Draw();
     c1->SetLeftMargin(0.15);
-    c1->SaveAs(Form("plots_dqdxHists_planes/sce/finaldqdx_%i_%s.png", l, cintyp));
-    c1->SaveAs(Form("plots_dqdxHists_planes/sce/finaldqdx_%i_%s.pdf", l, cintyp));
+    c1->SaveAs(Form("../plots/plots_dqdxHists_planes/sce/finaldqdx_%i_%s.png", l, cintyp));
+    c1->SaveAs(Form("../plots/plots_dqdxHists_planes/sce/finaldqdx_%i_%s.pdf", l, cintyp));
   }
 
 
@@ -434,8 +434,8 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
     
     l2->Draw();
     c2->SetLeftMargin(0.15);
-    c2->SaveAs(Form("plots_dqdxHists_planes/sce/dqdx_ratio_%i_%s.png", l, cintyp));
-    c2->SaveAs(Form("plots_dqdxHists_planes/sce/dqdx_ratio_%i_%s.pdf", l, cintyp));
+    c2->SaveAs(Form("../plots/plots_dqdxHists_planes/sce/dqdx_ratio_%i_%s.png", l, cintyp));
+    c2->SaveAs(Form("../plots/plots_dqdxHists_planes/sce/dqdx_ratio_%i_%s.pdf", l, cintyp));
   }
 
   out_file->Close();
