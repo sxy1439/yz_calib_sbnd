@@ -4,17 +4,12 @@
 #include <TFile.h>
 #include "../include/SCECorr.h"
 
-
 // need this additional setup in gpvm to run this macro with SCE
 // export SBND_DATA_PATH=/cvmfs/sbnd.opensciencegrid.org/products/sbnd/sbnd_data/
 // export SBNDDATA_VERSION=v01_28_00
 
 
 SCECorr *sce_corr_mc = new SCECorr(false);
-
-// to run :
-//root [0] .L dqdxHists.C
-//root [1] dqdxHists("doMC2023B_sub1", "output_files_mpv/yz_mc2023B_sub1.root", "output_files_mpv/x_mc2023B_sub1.root")
 
 
 //void dqdxHists_yzOnly_planes(const char* cintyp, const char* inYZOut, const char* inSCEYZ) {
@@ -84,7 +79,8 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
   TTreeReaderValue<float> dirx(myReader, "trk.dir.x");
   TTreeReaderValue<float> diry(myReader, "trk.dir.y");
   TTreeReaderValue<float> dirz(myReader, "trk.dir.z");
-  TTreeReaderValue<float> t0(myReader, "trk.t0");
+  //TTreeReaderValue<float> t0(myReader, "trk.t0");
+  TTreeReaderValue<float> t0(myReader, "trk.t0PFP");
   float thetaxz, thetayz;
 
   TTreeReaderArray<float> dqdx0(myReader, "trk.hits0.dqdx"); // hits on plane 2 (Collection)
@@ -158,26 +154,14 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
     
     for (unsigned i = 0; i < dqdx0.GetSize(); i++) {
       if(isnan(tpx0[i])||isnan(tpy0[i])||isnan(tpz0[i]))continue;
+      if (isnan(tpdirx0[i]) || isnan(tpdiry0[i]) || isnan(tpdirz0[i])) continue;
       if(isnan(dqdx0[i]) || isinf(dqdx0[i])) continue;
 
       // sce corrected
-
-      tpz0[i] = tpz0[i] - 4.2;
+      //tpz0[i] = tpz0[i] - 4.2;
       
       XYZVector sp_sce_uncorr(tpx0[i], tpy0[i], tpz0[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
-
-      /*
-      // masked YZ and X regions
-      if(string(cintyp).find("Data") != string::npos){
-	if(tpx0[i]<0){
-	  if(InVeto_region_eastTPC_I0(tpy0[i], tpz0[i])) continue;
-	}
-	else{
-	  if(InVeto_region_westTPC_I0(tpy0[i], tpz0[i])) continue;
-	}
-      }
-      */
 
       ibinx = floor((sp_sce_corr.X()-lowx)/(highx-lowx)*nbinx);     
       if(ibinx<0||ibinx>=nbinx)continue;
@@ -201,23 +185,22 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
 
 
       if(tpx0[i]<0){
-	dqdxHist[0][0]->Fill(dqdx0[i] * elife0);
-	dqdxHist[0][1]->Fill(dqdx_sce_corr * elife0);
-	dqdxHist[0][2]->Fill(dqdx_sce_corr * elife0 * CF_zy0);
+	dqdxHist[0][0]->Fill(dqdx0[i] * 50); // factor of 50 is just to convert the scale to e/cm
+	dqdxHist[0][1]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[0][2]->Fill(dqdx_sce_corr * 50 * CF_zy0);
 
-	dqdxHist[0][3]->Fill(dqdx0[i] * elife0);    // for ratio
-	dqdxHist[0][4]->Fill(dqdx_sce_corr * elife0);
-	dqdxHist[0][5]->Fill(dqdx_sce_corr * elife0 * CF_zy0);
+	dqdxHist[0][3]->Fill(dqdx0[i] * 50);    // for ratio
+	dqdxHist[0][4]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[0][5]->Fill(dqdx_sce_corr * 50 * CF_zy0);
       }
       else{
+	dqdxHist[0][0]->Fill(dqdx0[i] * 50);
+	dqdxHist[0][1]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[0][2]->Fill(dqdx_sce_corr * 50 * CF_zy1);
 
-	dqdxHist[0][0]->Fill(dqdx0[i] * elife1);
-	dqdxHist[0][1]->Fill(dqdx_sce_corr * elife1);
-	dqdxHist[0][2]->Fill(dqdx_sce_corr * elife1 * CF_zy1);
-
-	dqdxHist[0][3]->Fill(dqdx0[i] * elife1);    // for ratio
-	dqdxHist[0][4]->Fill(dqdx_sce_corr * elife1);
-	dqdxHist[0][5]->Fill(dqdx_sce_corr * elife1 * CF_zy1);
+	dqdxHist[0][3]->Fill(dqdx0[i] * 50);    // for ratio
+	dqdxHist[0][4]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[0][5]->Fill(dqdx_sce_corr * 50 * CF_zy1);
       }      
     }
 
@@ -225,26 +208,14 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
     
     for (unsigned i = 0; i < dqdx1.GetSize(); i++) {
       if(isnan(tpx1[i])||isnan(tpy1[i])||isnan(tpz1[i]))continue;
+      if (isnan(tpdirx1[i]) || isnan(tpdiry1[i]) || isnan(tpdirz1[i])) continue;
       if(isnan(dqdx1[i]) || isinf(dqdx1[i])) continue;
 
       // sce corrected
-
-      tpz1[i] = tpz1[i] - 4.2;
+      //tpz1[i] = tpz1[i] - 4.2;
       
       XYZVector sp_sce_uncorr(tpx1[i], tpy1[i], tpz1[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
-
-      /*
-      // masked YZ and X regions
-      if(string(cintyp).find("Data") != string::npos){
-	if(tpx1[i]<0){
-	  if(InVeto_region_eastTPC_C(tpy1[i], tpz1[i])) continue;
-	}
-	else{
-	  if(InVeto_region_westTPC_C(tpy1[i], tpz1[i])) continue;
-	}
-      }
-      */
 
       ibinx = floor((sp_sce_corr.X()-lowx)/(highx-lowx)*nbinx);     
       if(ibinx<0||ibinx>=nbinx)continue;
@@ -268,23 +239,22 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
 
 
       if(tpx1[i]<0){
-	dqdxHist[1][0]->Fill(dqdx1[i] * elife0);
-	dqdxHist[1][1]->Fill(dqdx_sce_corr * elife0);
-	dqdxHist[1][2]->Fill(dqdx_sce_corr * elife0 * CF_zy0);
+	dqdxHist[1][0]->Fill(dqdx1[i] * 50);
+	dqdxHist[1][1]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[1][2]->Fill(dqdx_sce_corr * 50 * CF_zy0);
 
-	dqdxHist[1][3]->Fill(dqdx1[i] * elife0);    // for ratio
-	dqdxHist[1][4]->Fill(dqdx_sce_corr * elife0);
-	dqdxHist[1][5]->Fill(dqdx_sce_corr * elife0 * CF_zy0);
+	dqdxHist[1][3]->Fill(dqdx1[i] * 50);    // for ratio
+	dqdxHist[1][4]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[1][5]->Fill(dqdx_sce_corr * 50 * CF_zy0);
       }
       else{
+	dqdxHist[1][0]->Fill(dqdx1[i] * 50);
+	dqdxHist[1][1]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[1][2]->Fill(dqdx_sce_corr * 50 * CF_zy1);
 
-	dqdxHist[1][0]->Fill(dqdx1[i] * elife1);
-	dqdxHist[1][1]->Fill(dqdx_sce_corr * elife1);
-	dqdxHist[1][2]->Fill(dqdx_sce_corr * elife1 * CF_zy1);
-
-	dqdxHist[1][3]->Fill(dqdx1[i] * elife1);    // for ratio
-	dqdxHist[1][4]->Fill(dqdx_sce_corr * elife1);
-	dqdxHist[1][5]->Fill(dqdx_sce_corr * elife1 * CF_zy1);
+	dqdxHist[1][3]->Fill(dqdx1[i] * 50);    // for ratio
+	dqdxHist[1][4]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[1][5]->Fill(dqdx_sce_corr * 50 * CF_zy1);
       }      
     }
 
@@ -294,26 +264,14 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
     
     for (unsigned i = 0; i < dqdx2.GetSize(); i++) {
       if(isnan(tpx2[i])||isnan(tpy2[i])||isnan(tpz2[i]))continue;
+      if (isnan(tpdirx2[i]) || isnan(tpdiry2[i]) || isnan(tpdirz2[i])) continue;
       if(isnan(dqdx2[i]) || isinf(dqdx2[i])) continue;
 
       // sce corrected
-
-      tpz2[i] = tpz2[i] - 4.2;
+      //tpz2[i] = tpz2[i] - 4.2;
       
       XYZVector sp_sce_uncorr(tpx2[i], tpy2[i], tpz2[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
-
-      /*
-      // masked YZ and X regions
-      if(string(cintyp).find("Data") != string::npos){
-	if(tpx2[i]<0){
-	  if(InVeto_region_eastTPC_C(tpy2[i], tpz2[i])) continue;
-	}
-	else{
-	  if(InVeto_region_westTPC_C(tpy2[i], tpz2[i])) continue;
-	}
-      }
-      */
 
       ibinx = floor((sp_sce_corr.X()-lowx)/(highx-lowx)*nbinx);     
       if(ibinx<0||ibinx>=nbinx)continue;
@@ -337,22 +295,23 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
 
 
       if(tpx2[i]<0){
-	dqdxHist[2][0]->Fill(dqdx2[i] * 50 * elife0);    // factor of 50 is just to convert the scale to e/cm (dqdx [ADC/cm] = 50 * dqdx [e/cm])
-	dqdxHist[2][1]->Fill(dqdx_sce_corr * 50 * elife0);
-	dqdxHist[2][2]->Fill(dqdx_sce_corr * 50 * elife0 * CF_zy0);
+	//dqdxHist[2][0]->Fill(dqdx2[i] * 50);    // factor of 50 is just to convert the scale to e/cm (dqdx [ADC/cm] = 50 * dqdx [e/cm])
+	dqdxHist[2][0]->Fill(dqdx2[i] * 50);
+	dqdxHist[2][1]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[2][2]->Fill(dqdx_sce_corr * 50 * CF_zy0);
 
-	dqdxHist[2][3]->Fill(dqdx2[i] * 50 * elife0);    // for ratio
-	dqdxHist[2][4]->Fill(dqdx_sce_corr * 50 * elife0);
-	dqdxHist[2][5]->Fill(dqdx_sce_corr * 50 * elife0 * CF_zy0);
+	dqdxHist[2][3]->Fill(dqdx2[i] * 50);    // for ratio
+	dqdxHist[2][4]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[2][5]->Fill(dqdx_sce_corr * 50 * CF_zy0);
       }
       else{
-	dqdxHist[2][0]->Fill(dqdx2[i] * 50 * elife1);
-	dqdxHist[2][1]->Fill(dqdx_sce_corr * 50 * elife1);
-	dqdxHist[2][2]->Fill(dqdx_sce_corr * 50 * elife1 * CF_zy1);
+	dqdxHist[2][0]->Fill(dqdx2[i] * 50);
+	dqdxHist[2][1]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[2][2]->Fill(dqdx_sce_corr * 50 * CF_zy1);
 
-	dqdxHist[2][3]->Fill(dqdx2[i] * 50 * elife1);    // for ratio
-	dqdxHist[2][4]->Fill(dqdx_sce_corr * 50 * elife1);
-	dqdxHist[2][5]->Fill(dqdx_sce_corr * 50 * elife1 * CF_zy1);
+	dqdxHist[2][3]->Fill(dqdx2[i] * 50);    // for ratio
+	dqdxHist[2][4]->Fill(dqdx_sce_corr * 50);
+	dqdxHist[2][5]->Fill(dqdx_sce_corr * 50 * CF_zy1);
       }      
     }
     
@@ -427,8 +386,8 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
     TLegend *l2 = new TLegend(0.6, 0.7, 0.85, 0.85);
     l2->SetTextSize(0.030);
     l2->AddEntry(dqdxHist[l][3], "No Correction", "l");
-    l2->AddEntry(dqdxHist[l][4], "+ lifetime correction", "l");
-    l2->AddEntry(dqdxHist[l][5], "+ SCE + YZ correction", "l");
+    l2->AddEntry(dqdxHist[l][4], "+ SCE correction", "l");
+    l2->AddEntry(dqdxHist[l][5], "+ YZ correction", "l");
     l2->SetBorderSize(0);
     l2->SetFillStyle(0);
     

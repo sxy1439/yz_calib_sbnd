@@ -137,6 +137,7 @@ void dqdxHists_yzOnly_planes(const char* cintyp, const char* inYZOut) {
     
     for (unsigned i = 0; i < dqdx0.GetSize(); i++) {
       if(isnan(tpx0[i])||isnan(tpy0[i])||isnan(tpz0[i]))continue;
+      if (isnan(tpdirx0[i]) || isnan(tpdiry0[i]) || isnan(tpdirz0[i])) continue;
       if(isnan(dqdx0[i]) || isinf(dqdx0[i])) continue;
 
       /*
@@ -153,7 +154,7 @@ void dqdxHists_yzOnly_planes(const char* cintyp, const char* inYZOut) {
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
       // ** remove this line once it's fixed
-      tpz0[i] = tpz0[i] - 4.2;
+      //tpz0[i] = tpz0[i] - 4.2;
       
       ibinx = floor((tpx0[i]-lowx)/(highx-lowx)*nbinx);     
       if(ibinx<0||ibinx>=nbinx)continue;
@@ -195,6 +196,7 @@ void dqdxHists_yzOnly_planes(const char* cintyp, const char* inYZOut) {
     
     for (unsigned i = 0; i < dqdx1.GetSize(); i++) {
       if(isnan(tpx1[i])||isnan(tpy1[i])||isnan(tpz1[i]))continue;
+      if (isnan(tpdirx1[i]) || isnan(tpdiry1[i]) || isnan(tpdirz1[i])) continue;
       if(isnan(dqdx1[i]) || isinf(dqdx1[i])) continue;
 
       /*
@@ -211,7 +213,7 @@ void dqdxHists_yzOnly_planes(const char* cintyp, const char* inYZOut) {
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
       // ** remove this line once it's fixed
-      tpz1[i] = tpz1[i] - 4.2;
+      //tpz1[i] = tpz1[i] - 4.2;
       
       ibinx = floor((tpx1[i]-lowx)/(highx-lowx)*nbinx);     
       if(ibinx<0||ibinx>=nbinx)continue;
@@ -254,6 +256,7 @@ void dqdxHists_yzOnly_planes(const char* cintyp, const char* inYZOut) {
     
     for (unsigned i = 0; i < dqdx2.GetSize(); i++) {
       if(isnan(tpx2[i])||isnan(tpy2[i])||isnan(tpz2[i]))continue;
+      if (isnan(tpdirx2[i]) || isnan(tpdiry2[i]) || isnan(tpdirz2[i])) continue;
       if(isnan(dqdx2[i]) || isinf(dqdx2[i])) continue;
 
       /*
@@ -270,7 +273,7 @@ void dqdxHists_yzOnly_planes(const char* cintyp, const char* inYZOut) {
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
       // ** remove this line once it's fixed
-      tpz2[i] = tpz2[i] - 4.2;
+      //tpz2[i] = tpz2[i] - 4.2;
       
       ibinx = floor((tpx2[i]-lowx)/(highx-lowx)*nbinx);     
       if(ibinx<0||ibinx>=nbinx)continue;

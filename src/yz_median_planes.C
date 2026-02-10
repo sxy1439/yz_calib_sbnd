@@ -167,6 +167,7 @@ void yz_median_planes(const char* cintyp) {
 
     for (unsigned i = 0; i < dqdx0.GetSize(); i++) {
       if(isnan(tpx0[i])||isnan(tpy0[i])||isnan(tpz0[i]))continue;
+      if (isnan(tpdirx0[i]) || isnan(tpdiry0[i]) || isnan(tpdirz0[i])) continue;
       if(isnan(dqdx0[i]) || isinf(dqdx0[i])) continue;
 
       /*
@@ -183,7 +184,7 @@ void yz_median_planes(const char* cintyp) {
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
       // ** remove this line once it's fixed    
-      tpz0[i] = tpz0[i] - 4.2;
+      //tpz0[i] = tpz0[i] - 4.2;
 
       ibinx = floor((tpx0[i]-lowx)/(highx-lowx)*nbinx);       
       if(ibinx<0||ibinx>=nbinx)continue;
@@ -207,30 +208,6 @@ void yz_median_planes(const char* cintyp) {
 	zyHistdqdx[0][1]->Fill(tpz0[i], tpy0[i], dqdx0[i] * elife1);
 	nyzHist[0][1][ibiny][ibinz]->Fill(dqdx0[i] * elife1);
       }
-     
-
-      // SCE corrected
-
-      /*
-      TVector3 dir_sce_corrected = get_sce_corrected_spatial_position(loc_vector(tpx0[i], tpy0[i], tpz0[i]), dir_vector(tpx0[i], tpy0[i], tpz0[i], tpdirx0[i], tpdiry0[i], tpdirz0[i])).Unit();
-
-      double pitch_sce_corrected=0.;
-      double cosgamma_sce_corrected = cos_gamma_angle(0, tpx0[i], dir_sce_corrected.Y(), dir_sce_corrected.Z());
-      if(cosgamma_sce_corrected) pitch_sce_corrected = wire_pitch / cosgamma_sce_corrected;
-      double dqdx_sce_corrected = charge0[i]/pitch_sce_corrected;
-
-      if(tpx0[i]<0){
-	zynhits[0][0]->Fill(tpz0[i], tpy0[i]);
-	zyHistdqdx[0][0]->Fill(tpz0[i], tpy0[i], dqdx_sce_corrected * elife0); 
-	nyzHist[0][0][ibiny][ibinz]->Fill(dqdx_sce_corrected * elife0);
-      }
-      else{
-	zynhits[0][1]->Fill(tpz0[i], tpy0[i]);
-	zyHistdqdx[0][1]->Fill(tpz0[i], tpy0[i], dqdx_sce_corrected * elife1);
-	nyzHist[0][1][ibiny][ibinz]->Fill(dqdx_sce_corrected * elife1);
-      }
-      */
-
       
     }
 
@@ -238,6 +215,7 @@ void yz_median_planes(const char* cintyp) {
 
     for (unsigned i = 0; i < dqdx1.GetSize(); i++) {
       if(isnan(tpx1[i])||isnan(tpy1[i])||isnan(tpz1[i]))continue;
+      if (isnan(tpdirx1[i]) || isnan(tpdiry1[i]) || isnan(tpdirz1[i])) continue;
       if(isnan(dqdx1[i]) || isinf(dqdx1[i])) continue;
 
       /*
@@ -279,40 +257,21 @@ void yz_median_planes(const char* cintyp) {
 	nyzHist[1][1][ibiny][ibinz]->Fill(dqdx1[i] * elife1);
       }
 
-      // sce corrected
-      /*
-
-      TVector3 dir_sce_corrected = get_sce_corrected_spatial_position(loc_vector(tpx1[i], tpy1[i], tpz1[i]), dir_vector(tpx1[i], tpy1[i], tpz1[i], tpdirx1[i], tpdiry1[i], tpdirz1[i])).Unit();
-
-      double pitch_sce_corrected=0.;
-      double cosgamma_sce_corrected = cos_gamma_angle(1, tpx1[i], dir_sce_corrected.Y(), dir_sce_corrected.Z());
-      if(cosgamma_sce_corrected) pitch_sce_corrected = wire_pitch / cosgamma_sce_corrected;   
-      double dqdx_sce_corrected = charge1[i]/pitch_sce_corrected;    
-      
-      if(tpx1[i]<0){
-	zynhits[1][0]->Fill(tpz1[i], tpy1[i]);
-	zyHistdqdx[1][0]->Fill(tpz1[i], tpy1[i], dqdx_sce_corrected * elife0); 
-	nyzHist[1][0][ibiny][ibinz]->Fill(dqdx_sce_corrected * elife0);
-      }
-      else{
-	zynhits[1][1]->Fill(tpz1[i], tpy1[i]);
-	zyHistdqdx[1][1]->Fill(tpz1[i], tpy1[i], dqdx_sce_corrected * elife1);
-	nyzHist[1][1][ibiny][ibinz]->Fill(dqdx_sce_corrected * elife1);
-      }
-      */
-
-      
     }
 
     // plane 2
     
     for (unsigned i = 0; i < dqdx2.GetSize(); i++) {
       if(isnan(tpx2[i])||isnan(tpy2[i])||isnan(tpz2[i]))continue;
+      if (isnan(tpdirx2[i]) || isnan(tpdiry2[i]) || isnan(tpdirz2[i])) continue;
       if(isnan(dqdx2[i]) || isinf(dqdx2[i])) continue;
 
+      // to avoid floating point leakage - since no active channel in the region (activates only for plotting purposes)
+      /*
       if(tpx2[i]<0){
 	if(tpz2[i]>65 && tpz2[i]<70) continue;   // to avoid floating point leakage
-      }
+      }*/
+      
 
       /*
       // masked YZ and X regions
@@ -328,7 +287,7 @@ void yz_median_planes(const char* cintyp) {
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
       // ** remove this line once it's fixed
-      tpz2[i] = tpz2[i] - 4.2;
+      //tpz2[i] = tpz2[i] - 4.2;
       
       ibinx = floor((tpx2[i]-lowx)/(highx-lowx)*nbinx);       
       if(ibinx<0||ibinx>=nbinx)continue;
@@ -352,29 +311,6 @@ void yz_median_planes(const char* cintyp) {
 	zyHistdqdx[2][1]->Fill(tpz2[i], tpy2[i], dqdx2[i] * elife1);
 	nyzHist[2][1][ibiny][ibinz]->Fill(dqdx2[i] * elife1);
       }
-
-      // sce corrected
-      /*
-
-      TVector3 dir_sce_corrected = get_sce_corrected_spatial_position(loc_vector(tpx2[i], tpy2[i], tpz2[i]), dir_vector(tpx2[i], tpy2[i], tpz2[i], tpdirx2[i], tpdiry2[i], tpdirz2[i])).Unit();
-      
-      double pitch_sce_corrected=0.;
-      double cosgamma_sce_corrected = cos_gamma_angle(2, tpx2[i], dir_sce_corrected.Y(), dir_sce_corrected.Z());
-      if(cosgamma_sce_corrected) pitch_sce_corrected = wire_pitch / cosgamma_sce_corrected;
-      double dqdx_sce_corrected = charge2[i]/pitch_sce_corrected;
-      
-      if(tpx2[i]<0){
-	zynhits[2][0]->Fill(tpz2[i], tpy2[i]);
-	zyHistdqdx[2][0]->Fill(tpz2[i], tpy2[i], dqdx_sce_corrected * elife0); 
-	nyzHist[2][0][ibiny][ibinz]->Fill(dqdx_sce_corrected * elife0);
-      }
-      else{
-	zynhits[2][1]->Fill(tpz2[i], tpy2[i]);
-	zyHistdqdx[2][1]->Fill(tpz2[i], tpy2[i], dqdx_sce_corrected * elife1);
-	nyzHist[2][1][ibiny][ibinz]->Fill(dqdx_sce_corrected * elife1);
-      }
-      */
-      
       
     }
 

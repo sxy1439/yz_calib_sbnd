@@ -16,5 +16,9 @@ TString getOutputNameX(const std::string& cintyp);
 TString getOutputNamedQdx(const std::string& cintyp);
 TString getOutputNameOfflinePitch(const std::string& cintyp);
 std::ifstream openInputFile(const std::string& cintyp);
+std::ifstream openInputFile_official(const std::string& cintyp);
+std::ifstream openInputFile_validation(const std::string& cintyp);
+TString getOutputNamedQdx_official(const std::string& cintyp);
+TString getOutputNamedQdx_validation(const std::string& cintyp);
 
 #endif

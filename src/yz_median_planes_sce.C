@@ -60,8 +60,8 @@ void yz_median_planes_sce(const char* cintyp) {
   TTreeReaderValue<float> dirx(myReader, "trk.dir.x");
   TTreeReaderValue<float> diry(myReader, "trk.dir.y");
   TTreeReaderValue<float> dirz(myReader, "trk.dir.z");
-  TTreeReaderValue<float> t0(myReader, "trk.t0");
-  //TTreeReaderValue<float> t0(myReader, "trk.t0PFP");
+  //TTreeReaderValue<float> t0(myReader, "trk.t0");
+  TTreeReaderValue<float> t0(myReader, "trk.t0PFP");
   float thetaxz, thetayz;
 
   TTreeReaderArray<float> dqdx0(myReader, "trk.hits0.dqdx"); // hits on plane 2 (Collection)
@@ -99,7 +99,12 @@ void yz_median_planes_sce(const char* cintyp) {
   TTreeReaderArray<float> time2(myReader, "trk.hits2.h.time"); // in ticks (500 ns), up to 3200 (1.6 ms > 1.25 ms)
   TTreeReaderArray<UShort_t> channel2(myReader, "trk.hits2.h.channel");
   TTreeReaderArray<float> charge2(myReader, "trk.hits2.h.integral");
-  
+
+
+  TTreeReaderValue<int> run(myReader, "trk.meta.run");
+  TTreeReaderValue<int> subrun(myReader, "trk.meta.subrun");
+  TTreeReaderValue<int> evt(myReader, "trk.meta.evt");
+
 
   cout<<"nbiny = "<<nbiny<<" nbinz = "<<nbinz<<endl;
   cout<<"elife[0] = "<<e_callife[0]<<" elife[1] = "<<e_callife[1]<<endl;
@@ -110,6 +115,9 @@ void yz_median_planes_sce(const char* cintyp) {
   int ntrk=0;
   int ntrkpos=0, ntrkneg=0;
   int ibinx, ibiny, ibinz, ibinc;
+
+  string title="selected-MC-metadata.csv";
+  FILE *fptr=fopen(title.c_str(),"a");
  
   myReader.Restart();
   while (myReader.Next()) {  
@@ -122,16 +130,19 @@ void yz_median_planes_sce(const char* cintyp) {
     
     thetayz = acos(*dirz / sqrt(pow(*dirz,2)+pow(*diry,2)))*180/TMath::Pi();
     if(*diry<0) thetayz = -thetayz;
-
-    //if(abs(thetaxz)>25 && abs(thetaxz)<35) continue;
-    //if(abs(thetaxz)>145 && abs(thetaxz)<155) continue;
     
-    if(abs(thetaxz)<115&&abs(thetaxz)>65)continue;//Angle      // TO DO : revist
+    if(abs(thetaxz)<115&&abs(thetaxz)>65)continue;//Angle      
     if(abs(thetayz)<110&&abs(thetayz)>70)continue;//Angle
 
     if (ntrk % 1000 == 0 && ntrk > 0) {
       std::cout << "entry => " << ntrk / 1000 << "k tracks" << std::endl;
     }
+
+    
+    //std::cout << "Event " << *run << "," << *subrun << " " << *evt  << std::endl;
+    string temp=to_string(*run)+",1,"+to_string(*evt);
+    //cout<<temp.c_str()<<endl;
+    fprintf(fptr,"%s\n",temp.c_str());
     
     ntrk++;
 
@@ -148,13 +159,15 @@ void yz_median_planes_sce(const char* cintyp) {
     
     for (unsigned i = 0; i < dqdx0.GetSize(); i++) {
       if(isnan(tpx0[i])||isnan(tpy0[i])||isnan(tpz0[i]))continue;
+      if (isnan(tpdirx0[i]) || isnan(tpdiry0[i]) || isnan(tpdirz0[i])) continue;
       if(isnan(dqdx0[i]) || isinf(dqdx0[i])) continue;
       
-      // sce corrected
+      // sce correction
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
-      // ** remove this line once it's fixed    
-      tpz0[i] = tpz0[i] - 4.2;
+      // ** remove this line once it's fixed
+      
+      //tpz0[i] = tpz0[i] - 4.2;
       
       XYZVector sp_sce_uncorr(tpx0[i], tpy0[i], tpz0[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
@@ -197,14 +210,16 @@ void yz_median_planes_sce(const char* cintyp) {
 	dqdxHist[0][1]->Fill(dqdx_sce_corr * elife0);
 	zynhits[0][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[0][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife0); 
-	nyzHist[0][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
+	//nyzHist[0][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
+	nyzHist[0][0][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       else{
 	dqdxHist[0][0]->Fill(dqdx0[i] * elife1);
 	dqdxHist[0][1]->Fill(dqdx_sce_corr * elife1);
 	zynhits[0][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[0][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife1); 
-	nyzHist[0][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
+	//nyzHist[0][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
+	nyzHist[0][1][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       
       
@@ -214,13 +229,15 @@ void yz_median_planes_sce(const char* cintyp) {
     
     for (unsigned i = 0; i < dqdx1.GetSize(); i++) {
       if(isnan(tpx1[i])||isnan(tpy1[i])||isnan(tpz1[i]))continue;
+      if (isnan(tpdirx1[i]) || isnan(tpdiry1[i]) || isnan(tpdirz1[i])) continue;
       if(isnan(dqdx1[i]) || isinf(dqdx1[i])) continue;
 
-      // sce corrected
+      // sce correction
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
-      // ** remove this line once it's fixed    
-      tpz1[i] = tpz1[i] - 4.2;
+      // ** remove this line once it's fixed
+
+      //tpz1[i] = tpz1[i] - 4.2;
 
       XYZVector sp_sce_uncorr(tpx1[i], tpy1[i], tpz1[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
@@ -264,14 +281,16 @@ void yz_median_planes_sce(const char* cintyp) {
 	dqdxHist[1][1]->Fill(dqdx_sce_corr * elife0);
 	zynhits[1][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[1][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife0); 
-	nyzHist[1][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
+	//nyzHist[1][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
+	nyzHist[1][0][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       else{
 	dqdxHist[1][0]->Fill(dqdx1[i] * elife1);
 	dqdxHist[1][1]->Fill(dqdx_sce_corr * elife1);
 	zynhits[1][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[1][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife1); 
-	nyzHist[1][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
+	//nyzHist[1][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
+	nyzHist[1][1][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       
       
@@ -281,17 +300,19 @@ void yz_median_planes_sce(const char* cintyp) {
     
     for (unsigned i = 0; i < dqdx2.GetSize(); i++) {
       if(isnan(tpx2[i])||isnan(tpy2[i])||isnan(tpz2[i]))continue;
+      if (isnan(tpdirx2[i]) || isnan(tpdiry2[i]) || isnan(tpdirz2[i])) continue;
       if(isnan(dqdx2[i]) || isinf(dqdx2[i])) continue;
 
       if(tpx2[i]<0){
-	if(tpz2[i]>65 && tpz2[i]<70) continue;   // to avoid floating point leakage
+	if(tpz2[i]>58 && tpz2[i]<66) continue;   // to avoid floating point leakage
       }
 
-      // sce corrected
+      // sce correction
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
-      // ** remove this line once it's fixed    
-      tpz2[i] = tpz2[i] - 4.2;
+      // ** remove this line once it's fixed
+
+      //tpz2[i] = tpz2[i] - 4.2;
 
       XYZVector sp_sce_uncorr(tpx2[i], tpy2[i], tpz2[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
@@ -334,14 +355,16 @@ void yz_median_planes_sce(const char* cintyp) {
 	dqdxHist[2][1]->Fill(dqdx_sce_corr * elife0);
 	zynhits[2][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[2][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife0); 
-	nyzHist[2][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
+	//nyzHist[2][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
+	nyzHist[2][0][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       else{
 	dqdxHist[2][0]->Fill(dqdx2[i] * elife1);
 	dqdxHist[2][1]->Fill(dqdx_sce_corr * elife1);
 	zynhits[2][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[2][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife1); 
-	nyzHist[2][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
+	//nyzHist[2][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
+	nyzHist[2][1][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       
       
@@ -399,8 +422,7 @@ void yz_median_planes_sce(const char* cintyp) {
 
   cout<<"[DEBUG:] Got global median"<<endl;
 
-  //double maxZ = std::max(zyHist[0]->GetMaximum(), zyHist[1]->GetMaximum());
-  
+
   TH2F *CzyHist[nplanes][2];
   for(int l=0;l<nplanes;l++){
     double maxZ = std::max(zyHist[l][0]->GetMaximum(), zyHist[l][1]->GetMaximum());
@@ -408,8 +430,9 @@ void yz_median_planes_sce(const char* cintyp) {
       CzyHist[l][k] = (TH2F*)zyHist[l][k]->Clone(Form("CzyHist_%i_%i",l,k));
       for(int i=0;i<nbiny;i++)for(int j=0;j<nbinz;j++){
 	  if(zyHist[l][k]->GetBinContent(j+1, i+1)<1e-2)continue;
-	  
-	  CzyHist[l][k]->SetBinContent(j+1, i+1, global_dqdx_medianyz[l][k] / zyHist[l][k]->GetBinContent(j+1, i+1));	
+
+	  double yzcorr = global_dqdx_medianyz[l][k] / zyHist[l][k]->GetBinContent(j+1, i+1);
+	  CzyHist[l][k]->SetBinContent(j+1, i+1, yzcorr);
 	}
       
       CzyHist[l][k]->GetXaxis()->CenterTitle();
@@ -438,6 +461,7 @@ void yz_median_planes_sce(const char* cintyp) {
     dqdxHist[l][0]->Write();
     dqdxHist[l][1]->Write();
   }
+  
   
   cout<<"[DEBUG:] Done writing histograms"<<endl;
 

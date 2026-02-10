@@ -3,12 +3,27 @@
 #include "file_handling.h"
 #include "../include/func_data_veto.h"
 #include <TFile.h>
+#include "../include/SCECorr.h"
 
 
-// to run : root -l -b -q 'ang_ana.C("doMC2023B_sub1")' > mpv_out_mc.txt
+// need this additional setup in gpvm to run this macro with SCE
+// export SBND_DATA_PATH=/cvmfs/sbnd.opensciencegrid.org/products/sbnd/sbnd_data/
+// export SBNDDATA_VERSION=v01_28_00
+
+
+SCECorr *sce_corr_mc = new SCECorr(false);
+
+// to run : root -l -b -q 'ang_ana.C("doMC_sub1")' > mpv_out_mc.txt
+
+// to run :
+//root [0] .L ang_ana.C
+//root [1] ang_ana("doMC2023B_sub1")
 
 
 void ang_ana(const char* cintyp) {
+
+  //LoadSCEMaps();
+  sce_corr_mc->ReadHistograms();
 
   gSystem->Load("libFileHandling.so");
   if (gSystem->Load("libFileHandling.so") < 0) {
@@ -52,13 +67,17 @@ void ang_ana(const char* cintyp) {
   TTreeReaderValue<float> dirx(myReader, "trk.dir.x");
   TTreeReaderValue<float> diry(myReader, "trk.dir.y");
   TTreeReaderValue<float> dirz(myReader, "trk.dir.z");
-  TTreeReaderValue<float> t0(myReader, "trk.t0");
+  //TTreeReaderValue<float> t0(myReader, "trk.t0");
+  TTreeReaderValue<float> t0(myReader, "trk.t0PFP");
   float thetaxz, thetayz;
 
   TTreeReaderArray<float> dqdx(myReader, "trk.hits2.dqdx"); // hits on plane 2 (Collection)
   TTreeReaderArray<float> tpx(myReader, "trk.hits2.h.sp.x"); // x of track trajectory position  (older was -> trk.hits2.tp.x)
   TTreeReaderArray<float> tpy(myReader, "trk.hits2.h.sp.y"); // y of track trajectory position  
   TTreeReaderArray<float> tpz(myReader, "trk.hits2.h.sp.z"); // z of track trajectory position
+  TTreeReaderArray<float> tpdirx(myReader, "trk.hits2.dir.x");
+  TTreeReaderArray<float> tpdiry(myReader, "trk.hits2.dir.y");
+  TTreeReaderArray<float> tpdirz(myReader, "trk.hits2.dir.z");
   TTreeReaderArray<float> time(myReader, "trk.hits2.h.time"); // in ticks (500 ns), up to 3200 (1.6 ms > 1.25 ms) (the comment in TrackCaloSkimmerObj.h does not look right)
 
 
@@ -100,8 +119,13 @@ void ang_ana(const char* cintyp) {
     
     for(unsigned i = 0; i < dqdx.GetSize(); i++){
       if (isnan(tpx[i]) || isnan(tpy[i]) || isnan(tpz[i])) continue;
+      if (isnan(tpdirx[i]) || isnan(tpdiry[i]) || isnan(tpdirz[i])) continue;
       if(isnan(dqdx[i]) || isinf(dqdx[i])) continue;
-      
+
+      XYZVector sp_sce_uncorr(tpx[i], tpy[i], tpz[i]);
+      XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
+
+      /*
       // masked YZ and X regions
       if(string(cintyp) == "doData_runs17742_to_87_sub1" || string(cintyp) == "doData_runs17742_to_87_ctcMap_sub1"){
 	if(tpx[i]<0){
@@ -111,14 +135,26 @@ void ang_ana(const char* cintyp) {
 	  if(InVeto_region_westTPC_C(tpy[i], tpz[i])) continue;
 	}
       }
+      */
+
+      double pitch_sce_uncorr = sce_corr_mc->meas_pitch(tpx[i], tpy[i], tpz[i], tpdirx[i], tpdiry[i], tpdirz[i], 2, false);
+      double pitch_sce_corr = sce_corr_mc->meas_pitch(tpx[i], tpy[i], tpz[i], tpdirx[i], tpdiry[i], tpdirz[i], 2, true);
+      double dqdx_sce_corr = dqdx[i] * pitch_sce_uncorr/pitch_sce_corr;
+
+      if(isnan(pitch_sce_corr) || isnan(pitch_sce_uncorr) || pitch_sce_corr == 0){
+	std::cout<<"pitch_sce_corr : "<<pitch_sce_corr<<" pitch_sce_uncorr : "<<pitch_sce_uncorr<<std::endl;
+	continue;
+      }
       
       if (tpx[i]<0) {
 	// for 2D theta plot
-	thetaHistNeg->Fill(thetaxz, thetayz, dqdx[i]*lifetime_correction(time[i], trk_t0, ticksToMs, preTriggerWindow, nsToMs, e_callife[0]));   
+	//thetaHistNeg->Fill(thetaxz, thetayz, dqdx[i]*lifetime_correction(time[i], trk_t0, ticksToMs, preTriggerWindow, nsToMs, e_callife[0]));
+	thetaHistNeg->Fill(thetaxz, thetayz, dqdx_sce_corr); 
 	// for the number of dqdx entries per bin to get the average of dqdx
 	countHistNeg->Fill(thetaxz, thetayz, 1);
       } else {
-	thetaHistPos->Fill(thetaxz, thetayz, dqdx[i]*lifetime_correction(time[i], trk_t0, ticksToMs, preTriggerWindow, nsToMs, e_callife[1]));        
+	//thetaHistPos->Fill(thetaxz, thetayz, dqdx[i]*lifetime_correction(time[i], trk_t0, ticksToMs, preTriggerWindow, nsToMs, e_callife[1]));
+	thetaHistPos->Fill(thetaxz, thetayz, dqdx_sce_corr); 
 	countHistPos->Fill(thetaxz, thetayz, 1); 	  
       }
     }
@@ -133,7 +169,8 @@ void ang_ana(const char* cintyp) {
       if(binEntriespos != 0){
 	thetaHistPos->SetBinContent(ix+1, iy+1, binContentpos / binEntriespos);
       } else {
-	thetaHistPos->SetBinContent(ix+1, iy+1, 0.001);
+	//thetaHistPos->SetBinContent(ix+1, iy+1, 0.001);
+	continue;
       }
       
       float binContentneg = thetaHistNeg->GetBinContent(ix+1, iy+1);
@@ -141,7 +178,8 @@ void ang_ana(const char* cintyp) {
       if(binEntriesneg != 0){
 	thetaHistNeg->SetBinContent(ix+1, iy+1, binContentneg / binEntriesneg);
       } else {
-	thetaHistNeg->SetBinContent(ix+1, iy+1, 0.001);
+	//thetaHistNeg->SetBinContent(ix+1, iy+1, 0.001);
+	continue;
       }
       
     }
@@ -157,7 +195,7 @@ void ang_ana(const char* cintyp) {
   cout<<"theta maxZth : "<<maxZth<<endl;
 
   TH2F *thetaHistPos_zfix = (TH2F*)thetaHistPos->Clone("thetaHistPos_zfix");
-  TH2F *thetaHistNeg_zfix = (TH2F*)thetaHistPos->Clone("thetaHistNeg_zfix");
+  TH2F *thetaHistNeg_zfix = (TH2F*)thetaHistNeg->Clone("thetaHistNeg_zfix");
 
   thetaxyHist->GetXaxis()->CenterTitle();
   thetaxyHist->GetYaxis()->CenterTitle();
