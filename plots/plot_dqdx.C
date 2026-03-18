@@ -84,59 +84,8 @@ void plot_dqdx(const char* instring){
 
   const char* plane_label[3] = {"Induction Plane 1", "Induction Plane 2", "Collection Plane"};
 
-  {
-    TCanvas *c = new TCanvas();
-    c->Clear();
-    TLegend * leg = MakeLegend(0.49, 0.63, 0.82, 0.85);
-    leg->SetTextSize(0.045);
-    leg->Clear();
-    
-    gStyle->SetOptStat(0);
 
-    for(int l=0;l<nplanes;l++){
-      SetLineStyle(dqdx[l][3], kBlack);
-      //SetLineStyle(dqdx[l][4], sbndstyle::colors::kOkabeItoBlue);
-      //SetLineStyle(dqdx[l][5], sbndstyle::colors::kOkabeItoBlueGreen);
-      
-      dqdx[l][3]->GetXaxis()->SetRangeUser(30E3, 100E3);
-      SetHist(dqdx[l][3], "", "dQ/dx  [ electrons / cm ]", "Ratio to nominal");
-
-      sbndstyle::SetSBNDStyle();
-      gROOT->ForceStyle();
-      gStyle->SetOptStat(0);
-      
-      dqdx[l][3]->SetStats(0);
-      //dqdx[l][4]->SetStats(0);
-      //dqdx[l][5]->SetStats(0);
-      
-      dqdx[l][3]->Draw("hist");
-      //dqdx[l][4]->Draw("hist same");
-      //dqdx[l][5]->Draw("hist same");
-
-      leg->Clear();
-      leg->AddEntry(dqdx[l][3],"No Correction","lf");
-      //leg->AddEntry(dqdx[l][4],"+ SCE Correction","lf");
-      //leg->AddEntry(dqdx[l][5],"+ YZ Correction","lf");
-
-      // sbndstyle::colors::kOkabeItoBlue
-      
-      if(string(instring).find("data") != string::npos){
-	//DrawLabel(Form("SBND Data Run %s", data_run), 0.7, 0.85, 0.95, kBlack, 32);
-	DrawLabel("SBND Data", 0.7, 0.85, 0.95, kBlack, 32);
-      } else {
-	DrawLabel("SBND Simulation", 0.7, 0.85, 0.95, kBlack, 32);
-      }
-      
-      leg->Draw();
-      c->SetLeftMargin(0.15);
-      c->SetBottomMargin(0.15);
-      //c->SetRightMargin(0.19);
-      c->SaveAs(Form("plot_dir/plot_dqdx/ratio_dqdx_%i.pdf", l));
-    }
-  }
-
-
-    {
+   {
     TCanvas *c = new TCanvas();
     c->Clear();
     TLegend * leg = MakeLegend(0.49, 0.64, 0.84, 0.85);
@@ -189,7 +138,7 @@ void plot_dqdx(const char* instring){
       //c->SetRightMargin(0.19);
       c->SaveAs(Form("plot_dir/plot_dqdx/dqdx_%i.pdf", l));
     }
-  }
+   }
 
   
  

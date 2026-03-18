@@ -91,60 +91,6 @@ void plot_cf_cnr_by_yzvoxel(const char* instring){
   {
     TCanvas *c = new TCanvas();
     c->Clear();
-    TLegend * leg = MakeLegend(0.6, 0.72, 0.82, 0.85);
-    leg->Clear();
-    
-    gStyle->SetOptStat(0);
-
-    for(int l=0;l<nplanes;l++){
-      for(int k=0;k<2;k++){
-	SetLineStyle(histyzcf_withcnr[l][k], sbndstyle::colors::kOkabeItoOrange);
-	SetLineStyle(histyzcf_nocnr[l][k], sbndstyle::colors::kOkabeItoBlueGreen);
-	
-	double maxy = std::max(histyzcf_withcnr[l][k]->GetMaximum(), histyzcf_nocnr[l][k]->GetMaximum());
-	histyzcf_withcnr[l][k]->GetXaxis()->SetRangeUser(0.9, 1.15);
-	histyzcf_withcnr[l][k]->GetYaxis()->SetRangeUser(0, 1.05*maxy);
-	SetHist(histyzcf_withcnr[l][k], "", "Correction Factor", "Number of YZ voxels");
-	
-	sbndstyle::SetSBNDStyle();
-	gROOT->ForceStyle();
-	gStyle->SetOptStat(0);
-	
-	histyzcf_withcnr[l][k]->SetStats(0);
-	histyzcf_nocnr[l][k]->SetStats(0);
-	
-	histyzcf_withcnr[l][k]->Draw("hist");
-	histyzcf_nocnr[l][k]->Draw("hist same");
-	
-	leg->Clear();
-	leg->AddEntry(histyzcf_withcnr[l][k],"with CNR","lf");
-	leg->AddEntry(histyzcf_nocnr[l][k],"without CNR","lf");
-	
-	// sbndstyle::colors::kOkabeItoBlue
-	
-	DrawLabel(tpc[k], 0.7, 0.15, 0.95, kBlack, 12);
-	
-	if(string(instring).find("data") != string::npos){
-	  //DrawLabel(Form("SBND Data Run %s", data_run), 0.7, 0.85, 0.95, kBlack, 32);
-	  DrawLabel("SBND Data", 0.7, 0.85, 0.95, kBlack, 32);
-	} else {
-	  DrawLabel("SBND Simulation", 0.7, 0.85, 0.95, kBlack, 32);
-	}
-	
-	leg->Draw();
-	c->SetLeftMargin(0.15);
-	c->SetBottomMargin(0.15);
-	//c->SetRightMargin(0.19);
-	c->SaveAs(Form("plot_dir/plot_cf_cnr_by_yzvoxel/test_cf_per_yzvoxel_%i_%i.pdf", l, k));
-      }
-    }
-  }
-
-
-  
-  {
-    TCanvas *c = new TCanvas();
-    c->Clear();
     TLegend * leg = MakeLegend(0.58, 0.67, 0.8, 0.85);
     leg->SetTextSize(0.05);
     leg->Clear();

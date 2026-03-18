@@ -11,6 +11,10 @@
 
 SCECorr *sce_corr_mc = new SCECorr(false);
 
+// to run :
+//root [0] .L dqdxHists.C
+//root [1] dqdxHists("doMC2023B_sub1", "output_files_mpv/yz_mc2023B_sub1.root", "output_files_mpv/x_mc2023B_sub1.root")
+
 
 //void dqdxHists_yzOnly_planes(const char* cintyp, const char* inYZOut, const char* inSCEYZ) {
 void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
@@ -81,6 +85,7 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
   TTreeReaderValue<float> dirz(myReader, "trk.dir.z");
   //TTreeReaderValue<float> t0(myReader, "trk.t0");
   TTreeReaderValue<float> t0(myReader, "trk.t0PFP");
+  TTreeReaderValue<int> run(myReader, "trk.meta.run");
   float thetaxz, thetayz;
 
   TTreeReaderArray<float> dqdx0(myReader, "trk.hits0.dqdx"); // hits on plane 2 (Collection)
@@ -132,6 +137,12 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
     if (!*is_mu) continue; //Pandora clear muon
     if ( !Is_Edge(*startx, *starty, *startz) || !Is_Edge(*endx, *endy, *endz)) continue;//FV
     if(!Is_Cathode_Crossing(*startx, *endx)) continue;
+
+    // pump trip period
+    if(string(cintyp).find("Data") != string::npos && *run>=18503 && *run<=18523){
+      //std::cout<<"pump trip period run ["<<*run<<"] found. Skipping the run."<<std::endl;
+      continue;
+    }
     
     thetaxz = acos(*dirz / sqrt(pow(*dirz,2)+pow(*dirx,2)))*180/TMath::Pi(); 
     if(*dirx<0) thetaxz = -thetaxz;
@@ -185,22 +196,28 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
 
 
       if(tpx0[i]<0){
-	dqdxHist[0][0]->Fill(dqdx0[i] * 50); // factor of 50 is just to convert the scale to e/cm
-	dqdxHist[0][1]->Fill(dqdx_sce_corr * 50);
-	dqdxHist[0][2]->Fill(dqdx_sce_corr * 50 * CF_zy0);
+	dqdxHist[0][0]->Fill(dqdx0[i] * 50); // factor of 50 is just to convert the scale to e/cm (dqdx [ADC/cm] = 50 * dqdx [e/cm])
+	dqdxHist[0][1]->Fill(dqdx0[i] * elife0 * 50);
+	dqdxHist[0][2]->Fill(dqdx_sce_corr * elife0 * 50);
+	dqdxHist[0][3]->Fill(dqdx_sce_corr * elife0 * 50 * CF_zy0);
 
+	/*
 	dqdxHist[0][3]->Fill(dqdx0[i] * 50);    // for ratio
 	dqdxHist[0][4]->Fill(dqdx_sce_corr * 50);
 	dqdxHist[0][5]->Fill(dqdx_sce_corr * 50 * CF_zy0);
+	*/
       }
       else{
 	dqdxHist[0][0]->Fill(dqdx0[i] * 50);
-	dqdxHist[0][1]->Fill(dqdx_sce_corr * 50);
-	dqdxHist[0][2]->Fill(dqdx_sce_corr * 50 * CF_zy1);
+	dqdxHist[0][1]->Fill(dqdx0[i] * elife1 * 50);
+	dqdxHist[0][2]->Fill(dqdx_sce_corr * elife1 * 50);
+	dqdxHist[0][3]->Fill(dqdx_sce_corr * elife1 * 50 * CF_zy1);
 
+	/*
 	dqdxHist[0][3]->Fill(dqdx0[i] * 50);    // for ratio
 	dqdxHist[0][4]->Fill(dqdx_sce_corr * 50);
 	dqdxHist[0][5]->Fill(dqdx_sce_corr * 50 * CF_zy1);
+	*/
       }      
     }
 
@@ -240,21 +257,26 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
 
       if(tpx1[i]<0){
 	dqdxHist[1][0]->Fill(dqdx1[i] * 50);
-	dqdxHist[1][1]->Fill(dqdx_sce_corr * 50);
-	dqdxHist[1][2]->Fill(dqdx_sce_corr * 50 * CF_zy0);
-
+	dqdxHist[1][1]->Fill(dqdx1[i] * elife0 * 50);
+	dqdxHist[1][2]->Fill(dqdx_sce_corr * elife0 * 50);
+	dqdxHist[1][3]->Fill(dqdx_sce_corr * elife0 * 50 * CF_zy0);
+	/*
 	dqdxHist[1][3]->Fill(dqdx1[i] * 50);    // for ratio
 	dqdxHist[1][4]->Fill(dqdx_sce_corr * 50);
 	dqdxHist[1][5]->Fill(dqdx_sce_corr * 50 * CF_zy0);
+	*/
       }
       else{
 	dqdxHist[1][0]->Fill(dqdx1[i] * 50);
-	dqdxHist[1][1]->Fill(dqdx_sce_corr * 50);
-	dqdxHist[1][2]->Fill(dqdx_sce_corr * 50 * CF_zy1);
+	dqdxHist[1][1]->Fill(dqdx1[i] * elife1 * 50);
+	dqdxHist[1][2]->Fill(dqdx_sce_corr * elife1 * 50);
+	dqdxHist[1][3]->Fill(dqdx_sce_corr * elife1 * 50 * CF_zy1);
 
+	/*
 	dqdxHist[1][3]->Fill(dqdx1[i] * 50);    // for ratio
 	dqdxHist[1][4]->Fill(dqdx_sce_corr * 50);
 	dqdxHist[1][5]->Fill(dqdx_sce_corr * 50 * CF_zy1);
+	*/
       }      
     }
 
@@ -297,34 +319,44 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
       if(tpx2[i]<0){
 	//dqdxHist[2][0]->Fill(dqdx2[i] * 50);    // factor of 50 is just to convert the scale to e/cm (dqdx [ADC/cm] = 50 * dqdx [e/cm])
 	dqdxHist[2][0]->Fill(dqdx2[i] * 50);
-	dqdxHist[2][1]->Fill(dqdx_sce_corr * 50);
-	dqdxHist[2][2]->Fill(dqdx_sce_corr * 50 * CF_zy0);
+	dqdxHist[2][1]->Fill(dqdx2[i] * elife0 * 50);
+	dqdxHist[2][2]->Fill(dqdx_sce_corr * elife0 * 50);
+	dqdxHist[2][3]->Fill(dqdx_sce_corr * elife0 * 50 * CF_zy0);
 
+	/*
 	dqdxHist[2][3]->Fill(dqdx2[i] * 50);    // for ratio
 	dqdxHist[2][4]->Fill(dqdx_sce_corr * 50);
 	dqdxHist[2][5]->Fill(dqdx_sce_corr * 50 * CF_zy0);
+	*/
       }
       else{
 	dqdxHist[2][0]->Fill(dqdx2[i] * 50);
-	dqdxHist[2][1]->Fill(dqdx_sce_corr * 50);
-	dqdxHist[2][2]->Fill(dqdx_sce_corr * 50 * CF_zy1);
+	dqdxHist[2][1]->Fill(dqdx2[i] * elife1 * 50);
+	dqdxHist[2][2]->Fill(dqdx_sce_corr * elife1 * 50);
+	dqdxHist[2][3]->Fill(dqdx_sce_corr * elife1 * 50 * CF_zy1);
 
+	/*
 	dqdxHist[2][3]->Fill(dqdx2[i] * 50);    // for ratio
 	dqdxHist[2][4]->Fill(dqdx_sce_corr * 50);
 	dqdxHist[2][5]->Fill(dqdx_sce_corr * 50 * CF_zy1);
+	*/
       }      
     }
     
   }
 
+  /*
   for(int l=0;l<nplanes;l++){
     dqdxHist[l][3]->Divide(dqdxHist[l][0]);
     dqdxHist[l][4]->Divide(dqdxHist[l][0]);
     dqdxHist[l][5]->Divide(dqdxHist[l][0]);
   }
+  */
   
-  for(int l=0;l<nplanes;l++)for(int k=0;k<6;k++)dqdxHist[l][k]->Write();
+  for(int l=0;l<nplanes;l++)for(int k=0;k<4;k++)dqdxHist[l][k]->Write();
 
+
+  /*
   //TGaxis::SetMaxDigits(3);
 
   for(int l=0;l<nplanes;l++){
@@ -357,8 +389,8 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
     
     l1->Draw();
     c1->SetLeftMargin(0.15);
-    c1->SaveAs(Form("../plots/plots_dqdxHists_planes/sce/finaldqdx_%i_%s.png", l, cintyp));
-    c1->SaveAs(Form("../plots/plots_dqdxHists_planes/sce/finaldqdx_%i_%s.pdf", l, cintyp));
+    c1->SaveAs(Form("plots_dqdxHists_planes/sce/finaldqdx_%i_%s.png", l, cintyp));
+    c1->SaveAs(Form("plots_dqdxHists_planes/sce/finaldqdx_%i_%s.pdf", l, cintyp));
   }
 
 
@@ -393,9 +425,10 @@ void dqdxHists_yzOnly_planes_sce(const char* cintyp, const char* inSCEYZ) {
     
     l2->Draw();
     c2->SetLeftMargin(0.15);
-    c2->SaveAs(Form("../plots/plots_dqdxHists_planes/sce/dqdx_ratio_%i_%s.png", l, cintyp));
-    c2->SaveAs(Form("../plots/plots_dqdxHists_planes/sce/dqdx_ratio_%i_%s.pdf", l, cintyp));
+    c2->SaveAs(Form("plots_dqdxHists_planes/sce/dqdx_ratio_%i_%s.png", l, cintyp));
+    c2->SaveAs(Form("plots_dqdxHists_planes/sce/dqdx_ratio_%i_%s.pdf", l, cintyp));
   }
+  */
 
   out_file->Close();
   

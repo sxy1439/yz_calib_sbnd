@@ -82,47 +82,6 @@ void plot_ang(const char* inFile) {
 
   {
     TCanvas *c = new TCanvas();
-    gStyle->SetOptStat(0);
-    
-    SetHist(thetaHistEast, "", "#theta_{xz} [deg.]", "#theta_{yz} [deg.]", "Avg. dQ/dx [ADC/cm]");
-    thetaHistEast->GetZaxis()->SetRangeUser(0, maxz);
-    sbndstyle::SetSBNDStyle();
-    gROOT->ForceStyle();
-    gStyle->SetOptStat(0);
-    
-    thetaHistEast->SetStats(0);
-    
-    thetaHistEast->Draw("colz");
-
-    DrawLabel(tpc[0], 0.7, 0.15, 0.95, kBlack, 12);
-    if(string(inFile).find("data") != string::npos){
-      //DrawLabel(Form("SBND Data Run %s", data_run), 0.7, 0.85, 0.95, kBlack, 32);
-      //DrawLabel("SBND Data, Preliminary", 0.7, 0.85, 0.95, kBlack, 32);
-      DrawLabel("SBND Data", 0.7, 0.85, 0.95, kBlack, 32);
-    } else {
-      DrawLabel("SBND Simulation, Preliminary", 0.7, 0.85, 0.95, kBlack, 32);
-    }
-
-    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), 110, thetaHistEast->GetXaxis()->GetXmax(), 112, kBlack, 2, 2);
-    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), -110, thetaHistEast->GetXaxis()->GetXmax(), -112, kBlack, 2, 2);
-    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), 70, thetaHistEast->GetXaxis()->GetXmax(), 72, kBlack, 2, 2);
-    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), -70, thetaHistEast->GetXaxis()->GetXmax(), -72, kBlack, 2, 2);
-
-    DrawLine(115, thetaHistEast->GetYaxis()->GetXmin(), 117, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
-    DrawLine(-115, thetaHistEast->GetYaxis()->GetXmin(), -117, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
-    DrawLine(65, thetaHistEast->GetYaxis()->GetXmin(), 67, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
-    DrawLine(-65, thetaHistEast->GetYaxis()->GetXmin(), -67, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
-    
-    c->SetLeftMargin(0.15);
-    c->SetBottomMargin(0.15);
-    c->SetRightMargin(0.19);
-    if(string(inFile).find("data") != string::npos) c->Print("plot_dir/plot_ang/east_ang_data_test.pdf");
-    else c->Print("plot_dir/plot_ang/east_ang_test.pdf");
-  }
-  
-
-  {
-    TCanvas *c = new TCanvas();
    
     SetHist(thetaHistEast, "", "#theta_{xz} [deg.]", "#theta_{yz} [deg.]", "Avg. dQ/dx [ADC/cm]");
     thetaHistEast->GetZaxis()->SetRangeUser(0, maxz);
