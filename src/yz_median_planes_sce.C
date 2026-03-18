@@ -115,6 +115,7 @@ void yz_median_planes_sce(const char* cintyp) {
   int ntrk=0;
   int ntrkpos=0, ntrkneg=0;
   int ibinx, ibiny, ibinz, ibinc;
+  int lastPrintedRun = -1;
 
   string title="selected-MC-metadata.csv";
   FILE *fptr=fopen(title.c_str(),"a");
@@ -124,6 +125,15 @@ void yz_median_planes_sce(const char* cintyp) {
     if (!*is_mu) continue; 
     if ( !Is_Edge(*startx, *starty, *startz) || !Is_Edge(*endx, *endy, *endz)) continue;//FV
     if(!Is_Cathode_Crossing(*startx, *endx)) continue;
+
+    // pump trip period
+    if(string(cintyp).find("Data") != string::npos && *run>=18503 && *run<=18523){
+      if(*run != lastPrintedRun){
+	std::cout<<"pump trip period run ["<<*run<<"] found. Skipping the run."<<std::endl;
+	lastPrintedRun = *run;
+      }
+      continue;
+    }
     
     thetaxz = acos(*dirz / sqrt(pow(*dirz,2)+pow(*dirx,2)))*180/TMath::Pi();   
     if(*dirx<0) thetaxz = -thetaxz;
@@ -166,8 +176,10 @@ void yz_median_planes_sce(const char* cintyp) {
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
       // ** remove this line once it's fixed
-      
-      //tpz0[i] = tpz0[i] - 4.2;
+      std::string intype = cintyp;
+      if(intype == "doData_dev" || intype == "doMC2024B_sub123" || intype == "doMC2024B_full") tpz0[i] = tpz0[i] - 4.2;
+
+      if(channel0[i] == 1830) continue;
       
       XYZVector sp_sce_uncorr(tpx0[i], tpy0[i], tpz0[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
@@ -210,16 +222,16 @@ void yz_median_planes_sce(const char* cintyp) {
 	dqdxHist[0][1]->Fill(dqdx_sce_corr * elife0);
 	zynhits[0][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[0][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife0); 
-	//nyzHist[0][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
-	nyzHist[0][0][ibiny][ibinz]->Fill(dqdx_sce_corr);
+	nyzHist[0][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
+	//nyzHist[0][0][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       else{
 	dqdxHist[0][0]->Fill(dqdx0[i] * elife1);
 	dqdxHist[0][1]->Fill(dqdx_sce_corr * elife1);
 	zynhits[0][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[0][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife1); 
-	//nyzHist[0][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
-	nyzHist[0][1][ibiny][ibinz]->Fill(dqdx_sce_corr);
+	nyzHist[0][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
+	//nyzHist[0][1][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       
       
@@ -236,8 +248,10 @@ void yz_median_planes_sce(const char* cintyp) {
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
       // ** remove this line once it's fixed
+      std::string intype = cintyp;
+      if(intype == "doData_dev" || intype == "doMC2024B_sub123" || intype == "doMC2024B_full") tpz1[i] = tpz1[i] - 4.2;
 
-      //tpz1[i] = tpz1[i] - 4.2;
+      if(channel1[i] == 4200) continue;
 
       XYZVector sp_sce_uncorr(tpx1[i], tpy1[i], tpz1[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
@@ -281,16 +295,16 @@ void yz_median_planes_sce(const char* cintyp) {
 	dqdxHist[1][1]->Fill(dqdx_sce_corr * elife0);
 	zynhits[1][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[1][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife0); 
-	//nyzHist[1][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
-	nyzHist[1][0][ibiny][ibinz]->Fill(dqdx_sce_corr);
+	nyzHist[1][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
+	//nyzHist[1][0][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       else{
 	dqdxHist[1][0]->Fill(dqdx1[i] * elife1);
 	dqdxHist[1][1]->Fill(dqdx_sce_corr * elife1);
 	zynhits[1][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[1][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife1); 
-	//nyzHist[1][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
-	nyzHist[1][1][ibiny][ibinz]->Fill(dqdx_sce_corr);
+	nyzHist[1][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
+	//nyzHist[1][1][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       
       
@@ -311,8 +325,10 @@ void yz_median_planes_sce(const char* cintyp) {
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
       // ** remove this line once it's fixed
+      std::string intype = cintyp;
+      if(intype == "doData_dev" || intype == "doMC2024B_sub123" || intype == "doMC2024B_full") tpz2[i] = tpz2[i] - 4.2;
 
-      //tpz2[i] = tpz2[i] - 4.2;
+      if(channel2[i] == 1280) continue;
 
       XYZVector sp_sce_uncorr(tpx2[i], tpy2[i], tpz2[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
@@ -355,16 +371,16 @@ void yz_median_planes_sce(const char* cintyp) {
 	dqdxHist[2][1]->Fill(dqdx_sce_corr * elife0);
 	zynhits[2][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[2][0]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife0); 
-	//nyzHist[2][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
-	nyzHist[2][0][ibiny][ibinz]->Fill(dqdx_sce_corr);
+	nyzHist[2][0][ibiny][ibinz]->Fill(dqdx_sce_corr * elife0);
+	//nyzHist[2][0][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       else{
 	dqdxHist[2][0]->Fill(dqdx2[i] * elife1);
 	dqdxHist[2][1]->Fill(dqdx_sce_corr * elife1);
 	zynhits[2][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y());
 	zyHistdqdx[2][1]->Fill(sp_sce_corr.Z(), sp_sce_corr.Y(), dqdx_sce_corr * elife1); 
-	//nyzHist[2][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
-	nyzHist[2][1][ibiny][ibinz]->Fill(dqdx_sce_corr);
+	nyzHist[2][1][ibiny][ibinz]->Fill(dqdx_sce_corr * elife1);
+	//nyzHist[2][1][ibiny][ibinz]->Fill(dqdx_sce_corr);
       }
       
       
@@ -388,10 +404,27 @@ void yz_median_planes_sce(const char* cintyp) {
 	  nyzHist[l][k][i][j]->GetQuantiles(nq, yq, xq);
 	  
 	  if(yq[0]<2)continue;
+	  //if(yq[0]<1e-2) continue;
 	  zyHist[l][k]->SetBinContent(j+1, i+1, yq[0]);    // takes the median of dqdx in that bin (to get local dqdx)
 
 	  medianyz_vec[l][k].push_back(yq[0]);     // for median of medians (to get global dqdx)
+
+	  /*
+	  // median line
+	  double xmed = yq[0];
+	  double ymin = 0.0;
+	  double ymax = nyzHist[l][k][i][j]->GetMaximum();   
 	  
+	  TLine *medLine = new TLine(xmed, ymin, xmed, ymax);
+	  medLine->SetLineColor(kBlue);
+	  medLine->SetLineWidth(2);
+	  medLine->SetLineStyle(2);
+	  
+	  nyzHist[l][k][i][j]->GetListOfFunctions()->Add(medLine);
+	  
+	  // writing histos
+	  nyzHist[l][k][i][j]->Write();
+	  */
 	}
     }
   }
@@ -401,7 +434,8 @@ void yz_median_planes_sce(const char* cintyp) {
   /*
   for(int l=0;l<3;l++){
     for(int k=0;k<2;k++){
-      for(int i=0;i<nbiny;i++)for(int j=0;j<nbinz;j++){
+      //for(int i=0;i<nbiny;i++)for(int j=0;j<nbinz;j++){
+        for(int i=0;i<nbiny;i++)for(int j=0;j<nbinz;j++){
 	  nyzHist[l][k][i][j]->Write();
 	}
     }
@@ -422,7 +456,9 @@ void yz_median_planes_sce(const char* cintyp) {
 
   cout<<"[DEBUG:] Got global median"<<endl;
 
+  //double maxZ = std::max(zyHist[0]->GetMaximum(), zyHist[1]->GetMaximum());
 
+  /*
   TH2F *CzyHist[nplanes][2];
   for(int l=0;l<nplanes;l++){
     double maxZ = std::max(zyHist[l][0]->GetMaximum(), zyHist[l][1]->GetMaximum());
@@ -430,9 +466,70 @@ void yz_median_planes_sce(const char* cintyp) {
       CzyHist[l][k] = (TH2F*)zyHist[l][k]->Clone(Form("CzyHist_%i_%i",l,k));
       for(int i=0;i<nbiny;i++)for(int j=0;j<nbinz;j++){
 	  if(zyHist[l][k]->GetBinContent(j+1, i+1)<1e-2)continue;
+	  
+	  CzyHist[l][k]->SetBinContent(j+1, i+1, global_dqdx_medianyz[l][k] / zyHist[l][k]->GetBinContent(j+1, i+1));	
+	}
+      
+      CzyHist[l][k]->GetXaxis()->CenterTitle();
+      CzyHist[l][k]->GetYaxis()->CenterTitle();
+      CzyHist[l][k]->GetZaxis()->CenterTitle();
+      
+      CzyHist[l][k]->SetXTitle("z [cm]");
+      CzyHist[l][k]->SetYTitle("y [cm]");
+      CzyHist[l][k]->SetZTitle("YZ correction factor");
+
+      zyHist[l][k]->Write();     // median/mpv dqdx
+      CzyHist[l][k]->Write();    // correction factor
+      
+      zynhits[l][k]->Write();          // stores number of hits
+      zyHistdqdx[l][k]->Write();       // stores dqdx values
+    }
+    dqdxHist[l][0]->Write();
+    dqdxHist[l][1]->Write();
+  }
+  */
+
+
+  TH2F *CzyHist[nplanes][2];
+  for(int l=0;l<nplanes;l++){
+    double maxZ = std::max(zyHist[l][0]->GetMaximum(), zyHist[l][1]->GetMaximum());
+    for(int k=0;k<2;k++){
+      CzyHist[l][k] = (TH2F*)zyHist[l][k]->Clone(Form("CzyHist_%i_%i",l,k));
+      for(int i=0;i<nbiny;i++)for(int j=0;j<nbinz;j++){
+	  if(zyHist[l][k]->GetBinContent(j+1, i+1)<2)continue;
 
 	  double yzcorr = global_dqdx_medianyz[l][k] / zyHist[l][k]->GetBinContent(j+1, i+1);
 	  CzyHist[l][k]->SetBinContent(j+1, i+1, yzcorr);
+
+	  const int voxIdx = j + i*nbinz;
+	  //histyzvox_cf[l][k]->SetBinContent(voxIdx+1, yzcorr);
+	  histyzvox_cf[l][k]->Fill(yzcorr);
+
+	  /*
+	  // median line
+	  double xmed = zyHist[l][k]->GetBinContent(j+1, i+1);
+	  double ymin = 0.0;
+	  double ymax = nyzHist[l][k][i][j]->GetMaximum();   
+	  
+	  TLine *medLine = new TLine(xmed, ymin, xmed, ymax);
+	  medLine->SetLineColor(kBlue);
+	  medLine->SetLineWidth(2);
+	  medLine->SetLineStyle(2);
+
+	  TLine *medLine2 = new TLine(xmed*yzcorr, ymin, xmed*yzcorr, ymax); // for the median line after correction
+	  medLine2->SetLineColor(kRed);
+	  medLine2->SetLineWidth(2);
+	  medLine2->SetLineStyle(2);
+	  
+	  nyzHist[l][k][i][j]->GetListOfFunctions()->Add(medLine);
+	  nyzHist[l][k][i][j]->GetListOfFunctions()->Add(medLine2);
+	  
+	  // writing histos
+	  nyzHist[l][k][i][j]->SetXTitle("dQdx [ADC/cm]");
+	  nyzHist[l][k][i][j]->SetYTitle("number of hits");
+	  nyzHist[l][k][i][j]->Write();
+	  */
+	  
 	}
       
       CzyHist[l][k]->GetXaxis()->CenterTitle();
@@ -454,6 +551,7 @@ void yz_median_planes_sce(const char* cintyp) {
       
       zyHist[l][k]->Write();     // median/mpv dqdx
       CzyHist[l][k]->Write();    // correction factor
+      histyzvox_cf[l][k]->Write(); 
       
       zynhits[l][k]->Write();          // stores number of hits
       zyHistdqdx[l][k]->Write();       // stores dqdx values

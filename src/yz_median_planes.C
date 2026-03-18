@@ -52,8 +52,9 @@ void yz_median_planes(const char* cintyp) {
   TTreeReaderValue<float> dirx(myReader, "trk.dir.x");
   TTreeReaderValue<float> diry(myReader, "trk.dir.y");
   TTreeReaderValue<float> dirz(myReader, "trk.dir.z");
-  TTreeReaderValue<float> t0(myReader, "trk.t0");
-  //TTreeReaderValue<float> t0(myReader, "trk.t0PFP");
+  //TTreeReaderValue<float> t0(myReader, "trk.t0");
+  TTreeReaderValue<float> t0(myReader, "trk.t0PFP");
+  TTreeReaderValue<int> run(myReader, "trk.meta.run");
   float thetaxz, thetayz;
 
   TTreeReaderArray<float> dqdx0(myReader, "trk.hits0.dqdx"); // hits on plane 2 (Collection)
@@ -102,6 +103,7 @@ void yz_median_planes(const char* cintyp) {
   int ntrk=0;
   int ntrkpos=0, ntrkneg=0;
   int ibinx, ibiny, ibinz, ibinc;
+  int lastPrintedRun = -1;
  
   myReader.Restart();
   while (myReader.Next()) {  
@@ -109,7 +111,15 @@ void yz_median_planes(const char* cintyp) {
     if ( !Is_Edge(*startx, *starty, *startz) || !Is_Edge(*endx, *endy, *endz)) continue;//FV
     if(!Is_Cathode_Crossing(*startx, *endx)) continue;
 
-
+    // pump trip period
+    if(string(cintyp).find("Data") != string::npos && *run>=18503 && *run<=18523){
+      if(*run != lastPrintedRun){
+	std::cout<<"pump trip period run ["<<*run<<"] found. Skipping the run."<<std::endl;
+	lastPrintedRun = *run;
+      }
+      continue;
+    }
+    
     h_trkstartx_beforeAngCut->Fill(*startx);
     h_trkstarty_beforeAngCut->Fill(*starty);
     h_trkstartz_beforeAngCut->Fill(*startz);
@@ -133,8 +143,6 @@ void yz_median_planes(const char* cintyp) {
     
     if(abs(thetaxz)<115&&abs(thetaxz)>65)continue;//Angle      
     if(abs(thetayz)<110&&abs(thetayz)>70)continue;//Angle
-
-    if(thetaxz < 30) continue; // very very temporary
 
     if (ntrk % 1000 == 0 && ntrk > 0) {
       std::cout << "entry => " << ntrk / 1000 << "k tracks" << std::endl;
@@ -167,24 +175,12 @@ void yz_median_planes(const char* cintyp) {
 
     for (unsigned i = 0; i < dqdx0.GetSize(); i++) {
       if(isnan(tpx0[i])||isnan(tpy0[i])||isnan(tpz0[i]))continue;
-      if (isnan(tpdirx0[i]) || isnan(tpdiry0[i]) || isnan(tpdirz0[i])) continue;
       if(isnan(dqdx0[i]) || isinf(dqdx0[i])) continue;
 
-      /*
-      // masked YZ and X regions
-      if(string(cintyp).find("Data") != string::npos){
-	if(tpx0[i]<0){
-	  if(InVeto_region_eastTPC_I0(tpy0[i], tpz0[i])) continue;
-	}
-	else{
-	  if(InVeto_region_westTPC_I0(tpy0[i], tpz0[i])) continue;
-	}
-      }
-      */
-
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
-      // ** remove this line once it's fixed    
-      //tpz0[i] = tpz0[i] - 4.2;
+      // ** remove this line once it's fixed
+      std::string intype = cintyp;
+      if(intype == "doData_dev" || intype == "doMC2024B_sub123" || intype == "doMC2024B_full") tpz0[i] = tpz0[i] - 4.2;
 
       ibinx = floor((tpx0[i]-lowx)/(highx-lowx)*nbinx);       
       if(ibinx<0||ibinx>=nbinx)continue;
@@ -202,11 +198,13 @@ void yz_median_planes(const char* cintyp) {
 	zynhits[0][0]->Fill(tpz0[i], tpy0[i]);
 	zyHistdqdx[0][0]->Fill(tpz0[i], tpy0[i], dqdx0[i] * elife0); 
 	nyzHist[0][0][ibiny][ibinz]->Fill(dqdx0[i] * elife0);
+	//nyzHist[0][0][ibiny][ibinz]->Fill(dqdx0[i]);
       }
       else{
 	zynhits[0][1]->Fill(tpz0[i], tpy0[i]);
 	zyHistdqdx[0][1]->Fill(tpz0[i], tpy0[i], dqdx0[i] * elife1);
 	nyzHist[0][1][ibiny][ibinz]->Fill(dqdx0[i] * elife1);
+	//nyzHist[0][1][ibiny][ibinz]->Fill(dqdx0[i]);
       }
       
     }
@@ -215,24 +213,12 @@ void yz_median_planes(const char* cintyp) {
 
     for (unsigned i = 0; i < dqdx1.GetSize(); i++) {
       if(isnan(tpx1[i])||isnan(tpy1[i])||isnan(tpz1[i]))continue;
-      if (isnan(tpdirx1[i]) || isnan(tpdiry1[i]) || isnan(tpdirz1[i])) continue;
       if(isnan(dqdx1[i]) || isinf(dqdx1[i])) continue;
 
-      /*
-      // masked YZ and X regions
-      if(string(cintyp).find("Data") != string::npos){
-	if(tpx1[i]<0){
-	  if(InVeto_region_eastTPC_I1(tpy1[i], tpz1[i])) continue;
-	}
-	else{
-	  if(InVeto_region_westTPC_I1(tpy1[i], tpz1[i])) continue;
-	}
-      }
-      */
-
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
-      // ** remove this line once it's fixed     
-      tpz1[i] = tpz1[i] - 4.2;
+      // ** remove this line once it's fixed
+      std::string intype = cintyp;
+      if(intype == "doData_dev" || intype == "doMC2024B_sub123" || intype == "doMC2024B_full") tpz1[i] = tpz1[i] - 4.2;
 
       ibinx = floor((tpx1[i]-lowx)/(highx-lowx)*nbinx);       
       if(ibinx<0||ibinx>=nbinx)continue;
@@ -250,11 +236,13 @@ void yz_median_planes(const char* cintyp) {
 	zynhits[1][0]->Fill(tpz1[i], tpy1[i]);
 	zyHistdqdx[1][0]->Fill(tpz1[i], tpy1[i], dqdx1[i] * elife0); 
 	nyzHist[1][0][ibiny][ibinz]->Fill(dqdx1[i] * elife0);
+	//nyzHist[1][0][ibiny][ibinz]->Fill(dqdx1[i]);
       }
       else{
 	zynhits[1][1]->Fill(tpz1[i], tpy1[i]);
 	zyHistdqdx[1][1]->Fill(tpz1[i], tpy1[i], dqdx1[i] * elife1);
 	nyzHist[1][1][ibiny][ibinz]->Fill(dqdx1[i] * elife1);
+	//nyzHist[1][1][ibiny][ibinz]->Fill(dqdx1[i]);
       }
 
     }
@@ -263,31 +251,16 @@ void yz_median_planes(const char* cintyp) {
     
     for (unsigned i = 0; i < dqdx2.GetSize(); i++) {
       if(isnan(tpx2[i])||isnan(tpy2[i])||isnan(tpz2[i]))continue;
-      if (isnan(tpdirx2[i]) || isnan(tpdiry2[i]) || isnan(tpdirz2[i])) continue;
       if(isnan(dqdx2[i]) || isinf(dqdx2[i])) continue;
 
-      // to avoid floating point leakage - since no active channel in the region (activates only for plotting purposes)
-      /*
       if(tpx2[i]<0){
-	if(tpz2[i]>65 && tpz2[i]<70) continue;   // to avoid floating point leakage
-      }*/
-      
-
-      /*
-      // masked YZ and X regions
-      if(string(cintyp).find("Data") != string::npos){
-	if(tpx2[i]<0){
-	  if(InVeto_region_eastTPC_C(tpy2[i], tpz2[i])) continue;
-	}
-	else{
-	  if(InVeto_region_westTPC_C(tpy2[i], tpz2[i])) continue;
-	}
+	if(tpz2[i]>58 && tpz2[i]<66) continue;   // to avoid floating point leakage
       }
-      */
 
       // *** manual shift in z (only till we get this fixed in sbnd geometry)
       // ** remove this line once it's fixed
-      //tpz2[i] = tpz2[i] - 4.2;
+      std::string intype = cintyp;
+      if(intype == "doData_dev" || intype == "doMC2024B_sub123" || intype == "doMC2024B_full") tpz2[i] = tpz2[i] - 4.2;
       
       ibinx = floor((tpx2[i]-lowx)/(highx-lowx)*nbinx);       
       if(ibinx<0||ibinx>=nbinx)continue;
@@ -305,13 +278,15 @@ void yz_median_planes(const char* cintyp) {
 	zynhits[2][0]->Fill(tpz2[i], tpy2[i]);
 	zyHistdqdx[2][0]->Fill(tpz2[i], tpy2[i], dqdx2[i] * elife0); 
 	nyzHist[2][0][ibiny][ibinz]->Fill(dqdx2[i] * elife0);
+	//nyzHist[2][0][ibiny][ibinz]->Fill(dqdx2[i]);
       }
       else{
 	zynhits[2][1]->Fill(tpz2[i], tpy2[i]);
 	zyHistdqdx[2][1]->Fill(tpz2[i], tpy2[i], dqdx2[i] * elife1);
 	nyzHist[2][1][ibiny][ibinz]->Fill(dqdx2[i] * elife1);
+	//nyzHist[2][1][ibiny][ibinz]->Fill(dqdx2[i]);
       }
-      
+
     }
 
     //cout<<"[DEBUG:] done with the dqdx loop"<<endl;
@@ -374,7 +349,7 @@ void yz_median_planes(const char* cintyp) {
     for(int k=0;k<2;k++){
       CzyHist[l][k] = (TH2F*)zyHist[l][k]->Clone(Form("CzyHist_%i_%i",l,k));
       for(int i=0;i<nbiny;i++)for(int j=0;j<nbinz;j++){
-	  if(zyHist[l][k]->GetBinContent(j+1, i+1)<1e-2)continue;
+	  if(zyHist[l][k]->GetBinContent(j+1, i+1)<2)continue;
 	  
 	  CzyHist[l][k]->SetBinContent(j+1, i+1, global_dqdx_medianyz[l][k] / zyHist[l][k]->GetBinContent(j+1, i+1));	
 	}

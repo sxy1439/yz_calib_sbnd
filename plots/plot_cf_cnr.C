@@ -67,19 +67,19 @@ TLegend * MakeLegend(float left=0.7, float bottom=0.5, float right=0.9, float to
 
 
 
-//void plot_dqdx(const char* instring, const char* data_run){
-void plot_dqdx(const char* instring){
+void plot_cf_cnr(const char* instring){
 
-  //TFile *file = new TFile("/exp/sbnd/app/users/yadav/Calibration/YZ_X_Calib/Median/split_macros/output_files/calib_paper_output/dQdx_data_fall25valII.root", "READ");
-  TFile *file = new TFile("/exp/sbnd/app/users/yadav/Calibration/YZ_X_Calib/Median/split_macros/output_files/calib_paper_output/sce/dQdx_data_fallrun1dev.root", "READ");
+  TFile *file_withcnr = new TFile("/exp/sbnd/app/users/yadav/Calibration/YZ_X_Calib/Median/split_macros/output_files/calib_paper_output/channel_data1e20.root", "READ");
+  //TFile *file_nocnr = new TFile("/exp/sbnd/app/users/yadav/Calibration/YZ_X_Calib/Median/split_macros/output_files/calib_paper_output/channel_data_fall25valII.root", "READ");
+  TFile *file_nocnr = new TFile("/exp/sbnd/app/users/yadav/Calibration/YZ_X_Calib/Median/split_macros/output_files/calib_paper_output/sce/channel_data_fallrun1dev.root", "READ");
 
   int nplanes = 3;
   
-  TH1F *dqdx[nplanes][6];
+  TH1F *histyzcf_withcnr[nplanes];
+  TH1F *histyzcf_nocnr[nplanes];
   for(int l=0;l<nplanes;l++){
-    for(int k=0;k<6;k++){
-      dqdx[l][k] = (TH1F*)file->Get(Form("dqdxHist_%i_%i",l,k));
-    }
+    histyzcf_withcnr[l] = (TH1F*)file_withcnr->Get(Form("histyzchannel_cf_%i",l));
+    histyzcf_nocnr[l] = (TH1F*)file_nocnr->Get(Form("histyzchannel_cf_%i",l));
   }
 
   const char* plane_label[3] = {"Induction Plane 1", "Induction Plane 2", "Collection Plane"};
@@ -87,36 +87,33 @@ void plot_dqdx(const char* instring){
   {
     TCanvas *c = new TCanvas();
     c->Clear();
-    TLegend * leg = MakeLegend(0.49, 0.63, 0.82, 0.85);
-    leg->SetTextSize(0.045);
+    TLegend * leg = MakeLegend(0.6, 0.72, 0.82, 0.85);
     leg->Clear();
     
     gStyle->SetOptStat(0);
 
     for(int l=0;l<nplanes;l++){
-      SetLineStyle(dqdx[l][3], kBlack);
-      //SetLineStyle(dqdx[l][4], sbndstyle::colors::kOkabeItoBlue);
-      //SetLineStyle(dqdx[l][5], sbndstyle::colors::kOkabeItoBlueGreen);
-      
-      dqdx[l][3]->GetXaxis()->SetRangeUser(30E3, 100E3);
-      SetHist(dqdx[l][3], "", "dQ/dx  [ electrons / cm ]", "Ratio to nominal");
+      SetLineStyle(histyzcf_withcnr[l], sbndstyle::colors::kOkabeItoOrange);
+      SetLineStyle(histyzcf_nocnr[l], sbndstyle::colors::kOkabeItoBlueGreen);
+
+      double maxy = std::max(histyzcf_withcnr[l]->GetMaximum(), histyzcf_nocnr[l]->GetMaximum());
+      histyzcf_withcnr[l]->GetXaxis()->SetRangeUser(0.9, 1.15);
+      histyzcf_withcnr[l]->GetYaxis()->SetRangeUser(0, 1.05*maxy);
+      SetHist(histyzcf_withcnr[l], "", "Correction Factor", "Number of Channels");
 
       sbndstyle::SetSBNDStyle();
       gROOT->ForceStyle();
       gStyle->SetOptStat(0);
       
-      dqdx[l][3]->SetStats(0);
-      //dqdx[l][4]->SetStats(0);
-      //dqdx[l][5]->SetStats(0);
-      
-      dqdx[l][3]->Draw("hist");
-      //dqdx[l][4]->Draw("hist same");
-      //dqdx[l][5]->Draw("hist same");
-
+      histyzcf_withcnr[l]->SetStats(0);
+      histyzcf_nocnr[l]->SetStats(0);
+ 
+      histyzcf_withcnr[l]->Draw("hist");
+      histyzcf_nocnr[l]->Draw("hist same");
+ 
       leg->Clear();
-      leg->AddEntry(dqdx[l][3],"No Correction","lf");
-      //leg->AddEntry(dqdx[l][4],"+ SCE Correction","lf");
-      //leg->AddEntry(dqdx[l][5],"+ YZ Correction","lf");
+      leg->AddEntry(histyzcf_withcnr[l],"with CNR","lf");
+      leg->AddEntry(histyzcf_nocnr[l],"without CNR","lf");
 
       // sbndstyle::colors::kOkabeItoBlue
       
@@ -131,48 +128,42 @@ void plot_dqdx(const char* instring){
       c->SetLeftMargin(0.15);
       c->SetBottomMargin(0.15);
       //c->SetRightMargin(0.19);
-      c->SaveAs(Form("plot_dir/plot_dqdx/ratio_dqdx_%i.pdf", l));
+      c->SaveAs(Form("plot_dir/plot_cf_cnr/test_cf_per_channel_%i.pdf", l));
     }
   }
 
 
-    {
+  {
     TCanvas *c = new TCanvas();
     c->Clear();
-    TLegend * leg = MakeLegend(0.49, 0.64, 0.84, 0.85);
-    leg->SetTextSize(0.045);
+    TLegend * leg = MakeLegend(0.58, 0.67, 0.8, 0.85);
+    leg->SetTextSize(0.05);
     leg->Clear();
     
     gStyle->SetOptStat(0);
 
     for(int l=0;l<nplanes;l++){
-      SetLineStyle(dqdx[l][0], kBlack); 
-      //SetLineStyle(dqdx[l][1], sbndstyle::colors::kOkabeItoRedPurple);
-      SetLineStyle(dqdx[l][2], kOrange+2);
-      SetLineStyle(dqdx[l][3], sbndstyle::colors::kOkabeItoBlueGreen);
+      SetLineStyle(histyzcf_withcnr[l], sbndstyle::colors::kOkabeItoOrange);
+      SetLineStyle(histyzcf_nocnr[l], sbndstyle::colors::kOkabeItoBlueGreen);
       
-      dqdx[l][0]->GetXaxis()->SetRangeUser(35E3, 100E3);
-      SetHist(dqdx[l][0], "", "dQ/dx  [ electrons / cm ]", "Number of hits");
+      double maxy = std::max(histyzcf_withcnr[l]->GetMaximum(), histyzcf_nocnr[l]->GetMaximum());
+      histyzcf_withcnr[l]->GetXaxis()->SetRangeUser(0.9, 1.15);
+      histyzcf_withcnr[l]->GetYaxis()->SetRangeUser(0, 1.05*maxy);
+      SetHist(histyzcf_withcnr[l], "", "Correction Factor", "Number of Channels");
 
       sbndstyle::SetSBNDStyle();
       gROOT->ForceStyle();
       gStyle->SetOptStat(0);
       
-      dqdx[l][0]->SetStats(0);
-      //dqdx[l][1]->SetStats(0);
-      dqdx[l][2]->SetStats(0);
-      dqdx[l][3]->SetStats(0);
-      
-      dqdx[l][0]->Draw("hist");
-      //dqdx[l][1]->Draw("hist same");
-      dqdx[l][2]->Draw("hist same");
-      dqdx[l][3]->Draw("hist same");
-
+      histyzcf_withcnr[l]->SetStats(0);
+      histyzcf_nocnr[l]->SetStats(0);
+ 
+      histyzcf_withcnr[l]->Draw("hist");
+      histyzcf_nocnr[l]->Draw("hist same");
+ 
       leg->Clear();
-      leg->AddEntry(dqdx[l][0],"No Correction","lf");
-      //leg->AddEntry(dqdx[l][1],"+ lifetime Correction","lf");
-      leg->AddEntry(dqdx[l][2],"+ SCE Correction","lf");
-      leg->AddEntry(dqdx[l][3],"+ YZ Correction","lf");
+      leg->AddEntry(histyzcf_withcnr[l],"with CNR","lf");
+      leg->AddEntry(histyzcf_nocnr[l],"without CNR","lf");
 
       // sbndstyle::colors::kOkabeItoBlue
       
@@ -182,15 +173,16 @@ void plot_dqdx(const char* instring){
       } else {
 	DrawLabel("SBND Simulation", 0.7, 0.85, 0.95, kBlack, 32);
       }
-
+      
       leg->Draw();
       c->SetLeftMargin(0.15);
       c->SetBottomMargin(0.15);
       //c->SetRightMargin(0.19);
-      c->SaveAs(Form("plot_dir/plot_dqdx/dqdx_%i.pdf", l));
+      c->SaveAs(Form("plot_dir/plot_cf_cnr/cf_per_channel_%i.pdf", l));
     }
   }
 
-  
+
+ 
  
 }

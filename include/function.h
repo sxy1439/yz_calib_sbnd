@@ -258,7 +258,7 @@ float lifetime_correction(float ti, float t0, float ticksToMs, float preTriggerW
   float correction_factor = 1.;
   float tdrift = (ti * ticksToMs) - preTriggerWindow - (t0 * nsToMs);
 
-  correction_factor = exp(tdrift/2/tau);
+  correction_factor = exp(tdrift/tau);
 
   return correction_factor;
 }
