@@ -66,6 +66,14 @@ void DrawLine(double x1, double y1, double x2, double y2, int color = kBlack, in
   line->Draw("same");
 }
 
+auto DrawHatchedBox = [](double x1, double y1, double x2, double y2){
+  TBox *box = new TBox(x1, y1, x2, y2);
+  box->SetFillColor(kGray+2);   // hatch color
+  box->SetFillStyle(3013);     // hatched style
+  box->SetLineColor(0);        // no box border
+  box->Draw("same");
+};
+
 
 
 //void plot_ang(const char* inFile, const char* data_run) {
@@ -94,6 +102,11 @@ void plot_ang(const char* inFile) {
     thetaHistEast->Draw("colz");
     //sbndstyle::Preliminary();
 
+    DrawHatchedBox( 65,   70, 115, 110);
+    DrawHatchedBox(-115,  70, -65, 110);
+    DrawHatchedBox( 65, -110, 115, -70);
+    DrawHatchedBox(-115,-110, -65, -70);
+    
     DrawLabel(tpc[0], 0.7, 0.15, 0.95, kBlack, 12);
     
     if(string(inFile).find("data") != string::npos){
@@ -104,21 +117,21 @@ void plot_ang(const char* inFile) {
       DrawLabel("SBND Simulation", 0.7, 0.85, 0.95, kBlack, 32);
     }
 
-    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), 110, thetaHistEast->GetXaxis()->GetXmax(), 112, kBlack, 2, 2);
-    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), -110, thetaHistEast->GetXaxis()->GetXmax(), -112, kBlack, 2, 2);
-    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), 70, thetaHistEast->GetXaxis()->GetXmax(), 72, kBlack, 2, 2);
-    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), -70, thetaHistEast->GetXaxis()->GetXmax(), -72, kBlack, 2, 2);
+    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), 110, thetaHistEast->GetXaxis()->GetXmax(), 110, kBlack, 2, 2);
+    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), -110, thetaHistEast->GetXaxis()->GetXmax(), -110, kBlack, 2, 2);
+    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), 70, thetaHistEast->GetXaxis()->GetXmax(), 70, kBlack, 2, 2);
+    DrawLine(thetaHistEast->GetXaxis()->GetXmin(), -70, thetaHistEast->GetXaxis()->GetXmax(), -70, kBlack, 2, 2);
 
-    DrawLine(115, thetaHistEast->GetYaxis()->GetXmin(), 117, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
-    DrawLine(-115, thetaHistEast->GetYaxis()->GetXmin(), -117, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
-    DrawLine(65, thetaHistEast->GetYaxis()->GetXmin(), 67, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
-    DrawLine(-65, thetaHistEast->GetYaxis()->GetXmin(), -67, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
+    DrawLine(115, thetaHistEast->GetYaxis()->GetXmin(), 115, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
+    DrawLine(-115, thetaHistEast->GetYaxis()->GetXmin(), -115, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
+    DrawLine(65, thetaHistEast->GetYaxis()->GetXmin(), 65, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
+    DrawLine(-65, thetaHistEast->GetYaxis()->GetXmin(), -65, thetaHistEast->GetYaxis()->GetXmax(), kBlack, 2, 2);
 
     sbndstyle::SetSBNDStyle();
 
-    c->SetLeftMargin(0.15);
-    c->SetBottomMargin(0.15);
-    c->SetRightMargin(0.19);
+    c->SetLeftMargin(0.13);
+    c->SetBottomMargin(0.133);
+    c->SetRightMargin(0.178);
     if(string(inFile).find("data") != string::npos) c->Print("plot_dir/plot_ang/east_ang_data.pdf");
     else c->Print("plot_dir/plot_ang/east_ang.pdf");
   }
@@ -138,6 +151,11 @@ void plot_ang(const char* inFile) {
     
     thetaHistWest->Draw("colz");
 
+    DrawHatchedBox( 65,   70, 115, 110);
+    DrawHatchedBox(-115,  70, -65, 110);
+    DrawHatchedBox( 65, -110, 115, -70);
+    DrawHatchedBox(-115,-110, -65, -70);
+
     DrawLabel(tpc[1], 0.7, 0.15, 0.95, kBlack, 12);
     if(string(inFile).find("data") != string::npos){
       //DrawLabel(Form("SBND Data Run %s", data_run), 0.7, 0.85, 0.95, kBlack, 32);
@@ -147,19 +165,19 @@ void plot_ang(const char* inFile) {
       DrawLabel("SBND Simulation", 0.7, 0.85, 0.95, kBlack, 32);
     }
 
-    DrawLine(thetaHistWest->GetXaxis()->GetXmin(), 110, thetaHistWest->GetXaxis()->GetXmax(), 112, kBlack, 2, 2);
-    DrawLine(thetaHistWest->GetXaxis()->GetXmin(), -110, thetaHistWest->GetXaxis()->GetXmax(), -112, kBlack, 2, 2);
-    DrawLine(thetaHistWest->GetXaxis()->GetXmin(), 70, thetaHistWest->GetXaxis()->GetXmax(), 72, kBlack, 2, 2);
-    DrawLine(thetaHistWest->GetXaxis()->GetXmin(), -70, thetaHistWest->GetXaxis()->GetXmax(), -72, kBlack, 2, 2);
+    DrawLine(thetaHistWest->GetXaxis()->GetXmin(), 110, thetaHistWest->GetXaxis()->GetXmax(), 110, kBlack, 2, 2);
+    DrawLine(thetaHistWest->GetXaxis()->GetXmin(), -110, thetaHistWest->GetXaxis()->GetXmax(), -110, kBlack, 2, 2);
+    DrawLine(thetaHistWest->GetXaxis()->GetXmin(), 70, thetaHistWest->GetXaxis()->GetXmax(), 70, kBlack, 2, 2);
+    DrawLine(thetaHistWest->GetXaxis()->GetXmin(), -70, thetaHistWest->GetXaxis()->GetXmax(), -70, kBlack, 2, 2);
 
-    DrawLine(115, thetaHistWest->GetYaxis()->GetXmin(), 117, thetaHistWest->GetYaxis()->GetXmax(), kBlack, 2, 2);
-    DrawLine(-115, thetaHistWest->GetYaxis()->GetXmin(), -117, thetaHistWest->GetYaxis()->GetXmax(), kBlack, 2, 2);
-    DrawLine(65, thetaHistWest->GetYaxis()->GetXmin(), 67, thetaHistWest->GetYaxis()->GetXmax(), kBlack, 2, 2);
-    DrawLine(-65, thetaHistWest->GetYaxis()->GetXmin(), -67, thetaHistWest->GetYaxis()->GetXmax(), kBlack, 2, 2);
+    DrawLine(115, thetaHistWest->GetYaxis()->GetXmin(), 115, thetaHistWest->GetYaxis()->GetXmax(), kBlack, 2, 2);
+    DrawLine(-115, thetaHistWest->GetYaxis()->GetXmin(), -115, thetaHistWest->GetYaxis()->GetXmax(), kBlack, 2, 2);
+    DrawLine(65, thetaHistWest->GetYaxis()->GetXmin(), 65, thetaHistWest->GetYaxis()->GetXmax(), kBlack, 2, 2);
+    DrawLine(-65, thetaHistWest->GetYaxis()->GetXmin(), -65, thetaHistWest->GetYaxis()->GetXmax(), kBlack, 2, 2);
     
-    c->SetLeftMargin(0.15);
-    c->SetBottomMargin(0.15);
-    c->SetRightMargin(0.19);
+    c->SetLeftMargin(0.13);
+    c->SetBottomMargin(0.133);
+    c->SetRightMargin(0.178);
     if(string(inFile).find("data") != string::npos) c->Print("plot_dir/plot_ang/west_ang_data.pdf");
     else c->Print("plot_dir/plot_ang/west_ang.pdf");
   }
