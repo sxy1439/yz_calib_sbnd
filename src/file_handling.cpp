@@ -205,11 +205,16 @@ TString getOutputNameYZ(const std::string& cintyp) {
     return "../output_files/calib_paper_output/yz_mc2025C_fallvalII.root";
   } else if (cintyp == "doMC2025_v10_14_02") {
     return "../output_files/2026Janfallprod_maps/yz_mc2025_v10_14_02.root";
+  } else if (cintyp == "doData_run_2") {
+    return "../output_files/run_2_sample/yz_data_v10_06_00_09_spring_sample.root";
   } else {
     std::cerr << "Invalid cintyp provided. Exiting.\n";
     exit(1);
   }
 }
+
+
+
 
 TString getOutputNameX(const std::string& cintyp) {
   if (cintyp == "doData_runs17742_to_87_sub1") {
@@ -287,6 +292,8 @@ TString getOutputNamedQdx(const std::string& cintyp) {
     return "../output_files/dQdx_mc2024B_full.root";
   } else if (cintyp == "doMC2025C_fallvalII") {
     return "../output_files/calib_paper_output/dQdx_mc2025C_fallvalII.root";
+  } else if (cintyp == "doData_run_2") {
+    return "../output_files/run_2_sample/dQdx_data_v10_06_00_09_spring_sample.root";
   } else {
     std::cerr << "Invalid cintyp provided. Exiting.\n";
     exit(1);
@@ -357,13 +364,14 @@ std::ifstream openInputFile(const std::string& cintyp) {
     fl.open("../input_files/calib_paper_samples/files_MCP2025C_FallValidationII_subOneTenth.txt");
   } else if (cintyp == "doMC2025_v10_14_02") {
     fl.open("../input_files/2026Janfallprod_maps/files_MCP2025_v10_14_02_sub1.txt");
+  } else if (cintyp == "doData_run_2") {
+    fl.open("../input_files/run_2_sample/run_2_data_v10_06_00_09_spring_sample.txt");
   } else {
     std::cerr << "Failed to open the file for " << cintyp << "\n";
     exit(1);
   }
   return fl;
 }
-
 
 std::ifstream openInputFile_official(const std::string& cintyp) {
   std::ifstream fl;

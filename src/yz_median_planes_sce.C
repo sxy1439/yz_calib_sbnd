@@ -1,4 +1,3 @@
-
 #include "../include/utilities_planes.h"
 #include "file_handling.h"
 #include "../include/func_data_veto.h"
@@ -179,7 +178,6 @@ void yz_median_planes_sce(const char* cintyp) {
       std::string intype = cintyp;
       if(intype == "doData_dev" || intype == "doMC2024B_sub123" || intype == "doMC2024B_full") tpz0[i] = tpz0[i] - 4.2;
 
-      if(channel0[i] == 1830) continue;
       
       XYZVector sp_sce_uncorr(tpx0[i], tpy0[i], tpz0[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
@@ -250,8 +248,6 @@ void yz_median_planes_sce(const char* cintyp) {
       // ** remove this line once it's fixed
       std::string intype = cintyp;
       if(intype == "doData_dev" || intype == "doMC2024B_sub123" || intype == "doMC2024B_full") tpz1[i] = tpz1[i] - 4.2;
-
-      if(channel1[i] == 4200) continue;
 
       XYZVector sp_sce_uncorr(tpx1[i], tpy1[i], tpz1[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
@@ -328,7 +324,6 @@ void yz_median_planes_sce(const char* cintyp) {
       std::string intype = cintyp;
       if(intype == "doData_dev" || intype == "doMC2024B_sub123" || intype == "doMC2024B_full") tpz2[i] = tpz2[i] - 4.2;
 
-      if(channel2[i] == 1280) continue;
 
       XYZVector sp_sce_uncorr(tpx2[i], tpy2[i], tpz2[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
@@ -503,7 +498,6 @@ void yz_median_planes_sce(const char* cintyp) {
 
 	  const int voxIdx = j + i*nbinz;
 	  //histyzvox_cf[l][k]->SetBinContent(voxIdx+1, yzcorr);
-	  histyzvox_cf[l][k]->Fill(yzcorr);
 
 	  /*
 	  // median line
@@ -551,7 +545,6 @@ void yz_median_planes_sce(const char* cintyp) {
       
       zyHist[l][k]->Write();     // median/mpv dqdx
       CzyHist[l][k]->Write();    // correction factor
-      histyzvox_cf[l][k]->Write(); 
       
       zynhits[l][k]->Write();          // stores number of hits
       zyHistdqdx[l][k]->Write();       // stores dqdx values
