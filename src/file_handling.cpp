@@ -2,7 +2,8 @@
 #include <iostream>
 #include <cstdlib>  // for std::exit
 
-std::array<float, 2> getELifetime(const std::string& cintyp){
+std::array<float, 2> getELifetime(const std::string& cintyp)
+{
   if (cintyp == "doMC2023B_sub1" || cintyp == "doMC2023B_full") {
     std::array<float, 2> e_callife = {10.e3, 10.e3};// in us
     return e_callife;
@@ -11,7 +12,7 @@ std::array<float, 2> getELifetime(const std::string& cintyp){
     return e_callife;
   }
   else {
-    std::array<float, 2> e_callife = {100.e3, 100.e3};// in us
+    std::array<float, 2> e_callife = {200.e3, 80.e3};// in us
     return e_callife;
   }
 }
@@ -163,6 +164,10 @@ TString getOutputNameYZ(const std::string& cintyp) {
     return "../output_files/yz_data_runs17742_to_87_sub1.root";
   } else if (cintyp == "doData_fall25valII") {
     return "../output_files/calib_paper_output/yz_data_fall25valII.root";
+  } else if (cintyp == "doData_run_2_gen_2_BNBLight") {
+    return "../output_files/run_2_sample/run_2_gen_2_BNBLight_data_v10_14_02_02.root";
+  } else if (cintyp == "doData_run_1_gen_1_fixed_dev") {
+    return "../output_files/run_1_sample/run_1_gen_1_fixed_dev.root";
   } else if (cintyp == "doData_v10_14_02") {
     return "../output_files/2026Janfallprod_maps/yz_data2025_v10_14_02.root";
   } else if (cintyp == "doData_dev") {
@@ -320,6 +325,10 @@ std::ifstream openInputFile(const std::string& cintyp) {
     fl.open("../input_files/data_runs17742_to_87_sub1.txt");
   } else if (cintyp == "doData_fall25valII") {
     fl.open("../input_files/calib_paper_samples/files_data25C_FallValidationII.txt");
+  } else if (cintyp == "doData_run_2_gen_2_BNBLight") {
+    fl.open("../input_files/run_2_sample/run_2_gen_2_BNBLight_data_v10_14_02_02.txt");
+  } else if (cintyp == "doData_run_1_gen_1_fixed_dev") {
+    fl.open("../input_files/run_1_sample/run_1_gen_1_fixed_dev.txt");
   } else if (cintyp == "doData_v10_14_02") {
     fl.open("../input_files/2026Janfallprod_maps/files_data25_v10_14_02.txt");
   } else if (cintyp == "doData_dev") {

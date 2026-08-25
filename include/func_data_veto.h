@@ -1,4 +1,30 @@
 
+
+
+// This specific function, PassNu26FiducialVolume, is to fiducialise sections of the SBND TPC as per DENTFORCE's recommendations as of 05/06/2026
+
+bool PassNu26FiducialVolume(double x, double y, double z) {
+  bool x_region = (std::abs(x) > 5.0) && (std::abs(x) < 190.0);
+
+  bool z_region1 = (z > 10.0 && z < 250.0) &&
+                   (y > -190.0 && y < 190.0);
+
+  bool z_region2 = (z > 250.0 && z < 450.0) &&
+                   (y > -190.0 && y < 100.0) &&
+                   (x < 0.0);
+
+  bool z_region3 = (z > 250.0 && z < 450.0) &&
+                   (y > -190.0 && y < 190.0) &&
+                   (x > 0.0);
+
+  return x_region && (z_region1 || z_region2 || z_region3);
+}
+
+
+
+
+
+
 // plane 0
 
 bool InVeto_region_eastTPC_I0(double y, double z) {
@@ -216,9 +242,9 @@ bool InVeto_region_westTPC_C(double y, double z) {
 
 bool InVeto_region_X(double x) {
   vector<vector<double>> vetoed_regions = {
-    {-200, -195},      // anode 1
+    {-200, -190},      // anode 1
     {-5, 5},          // cathode
-    {195, 200}       // anode 2
+    {190, 200}       // anode 2
     
   };
 

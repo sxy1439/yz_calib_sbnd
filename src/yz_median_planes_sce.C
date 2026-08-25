@@ -12,7 +12,10 @@
 
 SCECorr *sce_corr_mc = new SCECorr(false);
 
-void yz_median_planes_sce(const char* cintyp) {
+
+
+void yz_median_planes_sce(const char* cintyp) 
+{
 
   //LoadSCEMaps();
   sce_corr_mc->ReadHistograms();
@@ -182,6 +185,18 @@ void yz_median_planes_sce(const char* cintyp) {
       XYZVector sp_sce_uncorr(tpx0[i], tpy0[i], tpz0[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
 
+
+      // // Nu'26-style fiducial volume cut (DENTFORCE).
+      // // Putting this BEFORE ibinx/ibiny/ibinz and BEFORE any Fill().
+      // if (!PassNu26FiducialVolume(sp_sce_corr.X(),
+      //                             sp_sce_corr.Y(),
+      //                             sp_sce_corr.Z())) continue;
+
+
+
+
+
+
       /*
       // masked YZ and X regions
       if(string(cintyp).find("Data") != string::npos){
@@ -251,6 +266,13 @@ void yz_median_planes_sce(const char* cintyp) {
 
       XYZVector sp_sce_uncorr(tpx1[i], tpy1[i], tpz1[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
+
+
+      // // Nu'26-style fiducial volume cut (DENTFORCE).
+      // if (!PassNu26FiducialVolume(sp_sce_corr.X(),
+      //                             sp_sce_corr.Y(),
+      //                             sp_sce_corr.Z())) continue;
+
 
       /*
       // masked YZ and X regions
@@ -327,6 +349,17 @@ void yz_median_planes_sce(const char* cintyp) {
 
       XYZVector sp_sce_uncorr(tpx2[i], tpy2[i], tpz2[i]);
       XYZVector sp_sce_corr = sce_corr_mc->WireToTrajectoryPosition(sp_sce_uncorr);
+
+
+
+
+      // // Nu'26-style fiducial volume cut (DENTFORCE).
+      // // This filters collection-plane hits before they enter zynhits,
+      // // zyHistdqdx, and nyzHist, so they do not affect the median.
+      // if (!PassNu26FiducialVolume(sp_sce_corr.X(),
+      //                             sp_sce_corr.Y(),
+      //                             sp_sce_corr.Z())) continue;
+
 
       /*
       // masked YZ and X regions

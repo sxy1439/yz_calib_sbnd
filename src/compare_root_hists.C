@@ -313,7 +313,9 @@
 
 
 
-// VERSION 3 Where I implemented plot renormalisation and more detailed stats in the 1D comparison. I also changed the stats box position and size to be more consistent across different histograms, and added a border to it for better visibility. I also added a message at the end to report how many comparisons were saved.
+// VERSION 3 Where I implemented plot renormalisation and more detailed stats in the 1D comparison. 
+// I also changed the stats box position and size to be more consistent across different histograms, 
+// and added a border to it for better visibility. I also added a message at the end to report how many comparisons were saved.
 
 #include <TFile.h>
 #include <TKey.h>
@@ -412,8 +414,8 @@ void format_hist_1d(TH1* h) {
 void compare_histograms_2d(TH2* h_before, TH2* h_after, const TString& outname) {
   if (!h_before || !h_after) return;
 
-  TH2* hb = (TH2*)h_before->Clone(TString(h_before->GetName()) + "_run1");
-  TH2* ha = (TH2*)h_after->Clone(TString(h_after->GetName()) + "_run2");
+  TH2* hb = (TH2*)h_before->Clone(TString(h_before->GetName()) + "_Old");
+  TH2* ha = (TH2*)h_after->Clone(TString(h_after->GetName()) + "_New");
 
   // Keep original titles from the ROOT file
   // Force both plots to use Run 1 natural z range
@@ -453,8 +455,8 @@ void compare_histograms_2d(TH2* h_before, TH2* h_after, const TString& outname) 
 void draw_histograms_1d_counts(TH1* h_before, TH1* h_after, const TString& outname) {
   if (!h_before || !h_after) return;
 
-  TH1* hb = (TH1*)h_before->Clone(TString(h_before->GetName()) + "_run1_counts");
-  TH1* ha = (TH1*)h_after->Clone(TString(h_after->GetName()) + "_run2_counts");
+  TH1* hb = (TH1*)h_before->Clone(TString(h_before->GetName()) + "_old_counts");
+  TH1* ha = (TH1*)h_after->Clone(TString(h_after->GetName()) + "_new_counts");
 
   TCanvas* c = new TCanvas("c_compare_1d_counts", "comparison_1d_counts", 1100, 850);
   c->cd();
@@ -482,8 +484,8 @@ void draw_histograms_1d_counts(TH1* h_before, TH1* h_after, const TString& outna
   ha->Draw("HIST SAME");
 
   TLegend* leg = new TLegend(0.68, 0.78, 0.90, 0.90);
-  leg->AddEntry(hb, "Run 1", "l");
-  leg->AddEntry(ha, "Run 2", "l");
+  leg->AddEntry(hb, "Old", "l");
+  leg->AddEntry(ha, "New", "l");
   leg->SetBorderSize(1);
   leg->SetFillStyle(1001);
   leg->Draw();
@@ -494,9 +496,9 @@ void draw_histograms_1d_counts(TH1* h_before, TH1* h_after, const TString& outna
   stats->SetTextAlign(12);
   stats->SetTextSize(0.022);
 
-  stats->AddText(Form("Run 1: N=%.3g, #mu=%.1f, #sigma=%.1f",
+  stats->AddText(Form("Old: N=%.3g, #mu=%.1f, #sigma=%.1f",
                       hb->GetEntries(), hb->GetMean(), hb->GetStdDev()));
-  stats->AddText(Form("Run 2: N=%.3g, #mu=%.1f, #sigma=%.1f",
+  stats->AddText(Form("New: N=%.3g, #mu=%.1f, #sigma=%.1f",
                       ha->GetEntries(), ha->GetMean(), ha->GetStdDev()));
   stats->Draw();
 
@@ -514,8 +516,8 @@ void draw_histograms_1d_counts(TH1* h_before, TH1* h_after, const TString& outna
 void draw_histograms_1d_shape(TH1* h_before, TH1* h_after, const TString& outname) {
   if (!h_before || !h_after) return;
 
-  TH1* hb = (TH1*)h_before->Clone(TString(h_before->GetName()) + "_run1_shape");
-  TH1* ha = (TH1*)h_after->Clone(TString(h_after->GetName()) + "_run2_shape");
+  TH1* hb = (TH1*)h_before->Clone(TString(h_before->GetName()) + "_old_shape");
+  TH1* ha = (TH1*)h_after->Clone(TString(h_after->GetName()) + "_new_shape");
 
   TCanvas* c = new TCanvas("c_compare_1d_shape", "comparison_1d_shape", 1100, 850);
   c->cd();
@@ -549,8 +551,8 @@ void draw_histograms_1d_shape(TH1* h_before, TH1* h_after, const TString& outnam
   ha->Draw("HIST SAME");
 
   TLegend* leg = new TLegend(0.68, 0.78, 0.90, 0.90);
-  leg->AddEntry(hb, "Run 1", "l");
-  leg->AddEntry(ha, "Run 2", "l");
+  leg->AddEntry(hb, "Old", "l");
+  leg->AddEntry(ha, "New", "l");
   leg->SetBorderSize(1);
   leg->SetFillStyle(1001);
   leg->Draw();
@@ -561,9 +563,9 @@ void draw_histograms_1d_shape(TH1* h_before, TH1* h_after, const TString& outnam
   stats->SetTextAlign(12);
   stats->SetTextSize(0.022);
 
-  stats->AddText(Form("Run 1: #mu=%.1f, #sigma=%.1f",
+  stats->AddText(Form("Old: #mu=%.1f, #sigma=%.1f",
                       hb->GetMean(), hb->GetStdDev()));
-  stats->AddText(Form("Run 2: #mu=%.1f, #sigma=%.1f",
+  stats->AddText(Form("New: #mu=%.1f, #sigma=%.1f",
                       ha->GetMean(), ha->GetStdDev()));
   stats->Draw();
 
@@ -577,12 +579,6 @@ void draw_histograms_1d_shape(TH1* h_before, TH1* h_after, const TString& outnam
   delete ha;
   delete c;
 }
-
-
-
-
-
-
 
 
 
