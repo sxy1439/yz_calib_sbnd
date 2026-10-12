@@ -411,6 +411,18 @@ void format_hist_1d(TH1* h) {
   h->SetLineWidth(2);
 }
 
+// This enables the median to be calculated as well (PENDING)
+double hist_median(TH1* h)
+{
+  if (!h || h->GetEntries() <= 0) return 0.0;
+
+  double q = 0.5;
+  double median = 0.0;
+  h->GetQuantiles(1, &median, &q);
+
+  return median;
+}
+
 void compare_histograms_2d(TH2* h_before, TH2* h_after, const TString& outname) {
   if (!h_before || !h_after) return;
 
@@ -418,9 +430,13 @@ void compare_histograms_2d(TH2* h_before, TH2* h_after, const TString& outname) 
   TH2* ha = (TH2*)h_after->Clone(TString(h_after->GetName()) + "_New");
 
   // Keep original titles from the ROOT file
-  // Force both plots to use Run 1 natural z range
-  double zmin = natural_min(hb);
-  double zmax = natural_max(hb);
+  // // Force both plots to use Run 1 natural z range
+  // double zmin = natural_min(hb);
+  // double zmax = natural_max(hb);
+
+// Trying to use the max range possible to avoid white spots
+  double zmin = std::min(natural_min(hb), natural_min(ha));
+  double zmax = std::max(natural_max(hb), natural_max(ha));
 
   if (zmin == zmax) {
     zmin -= 1.0;
@@ -469,6 +485,11 @@ void draw_histograms_1d_counts(TH1* h_before, TH1* h_after, const TString& outna
   format_hist_1d(hb);
   format_hist_1d(ha);
 
+
+  double median_old = hist_median(hb);
+  double median_new = hist_median(ha);
+
+
   hb->SetLineColor(kBlack);
   ha->SetLineColor(kRed);
 
@@ -490,16 +511,21 @@ void draw_histograms_1d_counts(TH1* h_before, TH1* h_after, const TString& outna
   leg->SetFillStyle(1001);
   leg->Draw();
 
-  TPaveText* stats = new TPaveText(0.16, 0.74, 0.46, 0.84, "NDC");
+  TPaveText* stats = new TPaveText(0.16, 0.74, 0.50, 0.84, "NDC");
   stats->SetBorderSize(1);
   stats->SetFillStyle(1001);
   stats->SetTextAlign(12);
   stats->SetTextSize(0.022);
 
-  stats->AddText(Form("Old: N=%.3g, #mu=%.1f, #sigma=%.1f",
-                      hb->GetEntries(), hb->GetMean(), hb->GetStdDev()));
-  stats->AddText(Form("New: N=%.3g, #mu=%.1f, #sigma=%.1f",
-                      ha->GetEntries(), ha->GetMean(), ha->GetStdDev()));
+
+  // stats->AddText(Form("Old: N=%.3g, #mu=%.1f, med=%.1f, #sigma=%.1f",
+  //                     hb->GetEntries(), hb->GetMean(), median_old, hb->GetStdDev()));
+  // stats->AddText(Form("New: N=%.3g, #mu=%.1f, med=%.1f, #sigma=%.1f",
+  //                     ha->GetEntries(), ha->GetMean(), median_new, ha->GetStdDev()));
+  stats->AddText(Form("Old: N=%.3g,  med=%.1f, #sigma=%.1f",
+                      hb->GetEntries(), median_old, hb->GetStdDev()));
+  stats->AddText(Form("New: N=%.3g,  med=%.1f, #sigma=%.1f",
+                      ha->GetEntries(), median_new, ha->GetStdDev()));
   stats->Draw();
 
   c->Modified();
@@ -529,6 +555,9 @@ void draw_histograms_1d_shape(TH1* h_before, TH1* h_after, const TString& outnam
 
   format_hist_1d(hb);
   format_hist_1d(ha);
+
+  double median_old = hist_median(hb);
+  double median_new = hist_median(ha);
 
   hb->SetLineColor(kBlack);
   ha->SetLineColor(kRed);
@@ -563,10 +592,16 @@ void draw_histograms_1d_shape(TH1* h_before, TH1* h_after, const TString& outnam
   stats->SetTextAlign(12);
   stats->SetTextSize(0.022);
 
-  stats->AddText(Form("Old: #mu=%.1f, #sigma=%.1f",
-                      hb->GetMean(), hb->GetStdDev()));
-  stats->AddText(Form("New: #mu=%.1f, #sigma=%.1f",
-                      ha->GetMean(), ha->GetStdDev()));
+  // stats->AddText(Form("Old: #mu=%.1f, #sigma=%.1f",
+  //                     hb->GetMean(), hb->GetStdDev()));
+  // stats->AddText(Form("New: #mu=%.1f, #sigma=%.1f",
+  //                     ha->GetMean(), ha->GetStdDev()));
+
+
+  stats->AddText(Form("Old: med=%.1f, #sigma=%.1f",
+                      median_old, hb->GetStdDev()));
+  stats->AddText(Form("New: med=%.1f, #sigma=%.1f",
+                      median_new, ha->GetStdDev()));
   stats->Draw();
 
   c->Modified();

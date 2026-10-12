@@ -534,10 +534,10 @@ void draw_dqdx_histogram(TH1* h1, const TString& out)
 
   h1->Draw("HIST");
 
-  // // Calculate median from the histogram (CHANGE PENDING)
-  // double q = 0.5;
-  // double median = 0.0;
-  // h1->GetQuantiles(1, &median, &q);
+  // Calculate median from the histogram 
+  double q = 0.5;
+  double median = 0.0;
+  h1->GetQuantiles(1, &median, &q);
 
   // Manually draw a centred title.
   TLatex title;
@@ -561,13 +561,13 @@ void draw_dqdx_histogram(TH1* h1, const TString& out)
     st->SetFillStyle(1001);
   }
 
-  // // Display median from the histogram below stats box (CHANGE PENDING)
-  // TLatex med_label;
-  // med_label.SetNDC();
-  // med_label.SetTextFont(42);
-  // med_label.SetTextSize(0.025);
-  // med_label.SetTextAlign(12);
-  // med_label.DrawLatex(0.79, 0.745, Form("Median      %.1f", median));
+  // Display median from the histogram below stats box 
+  TLatex med_label;
+  med_label.SetNDC();
+  med_label.SetTextFont(42);
+  med_label.SetTextSize(0.025);
+  med_label.SetTextAlign(12);
+  med_label.DrawLatex(0.79, 0.745, Form("Median      %.1f", median));
 
 
 
