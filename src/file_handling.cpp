@@ -5,14 +5,16 @@
 std::array<float, 2> getELifetime(const std::string& cintyp)
 {
   if (cintyp == "doMC2023B_sub1" || cintyp == "doMC2023B_full") {
-    std::array<float, 2> e_callife = {10.e3, 10.e3};// in us
+    std::array<float, 2> e_callife = {10., 10.};// in ms
     return e_callife;
   } else if(cintyp == "doData_dev" || cintyp == "doData_dev_scaling1" || cintyp == "doData_dev_ratio1"){
-    std::array<float, 2> e_callife = {60.52e3, 92.46e3};// in us
+    std::array<float, 2> e_callife = {60.52, 92.46};// in ms
     return e_callife;
   }
   else {
-    std::array<float, 2> e_callife = {200.e3, 80.e3};// in us
+    // {East, West} in ms (millisecond), since lifetime_correction works in ms. e.g. 30 us = 0.03.
+    // run_lifetime_scan.sh edits the line below; keep the "lifetime scan" tag on it.
+    std::array<float, 2> e_callife = {0.03, 0.03};// lifetime scan
     return e_callife;
   }
 }
