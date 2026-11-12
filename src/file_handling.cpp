@@ -435,4 +435,3 @@ TString getOutputNamedQdx_validation(const std::string& cintyp) {
     exit(1);
   }
 }
-
