@@ -14,7 +14,7 @@ std::array<float, 2> getELifetime(const std::string& cintyp)
   else {
     // {East, West} in ms (millisecond), since lifetime_correction works in ms. e.g. 30 us = 0.03.
     // run_lifetime_scan.sh edits the line below; keep the "lifetime scan" tag on it.
-    std::array<float, 2> e_callife = {0.03, 0.03};// lifetime scan
+    std::array<float, 2> e_callife = {1, 1};// lifetime scan
     return e_callife;
   }
 }
