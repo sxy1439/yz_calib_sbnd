@@ -13,7 +13,7 @@ std::array<float, 2> getELifetime(const std::string& cintyp)
   }
   else {
     // {East, West} in ms (millisecond), since lifetime_correction works in ms. e.g. 30 us = 0.03.
-    std::array<float, 2> e_callife = {0.2, 0.08};// in ms
+    std::array<float, 2> e_callife = {200, 80};// in ms
     return e_callife;
   }
 }
