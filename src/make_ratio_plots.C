@@ -174,15 +174,16 @@ void save_ratio_png(TH2* h,
   delete c;
 }
 
+// void make ratio() does new / original ratio 
 void make_ratio_plots(const char* original_file,
-                      const char* dentforce_file,
-                      const char* out_root_file = "../output_files/ratio_dentforce_over_original.root",
-                      const char* out_png_dir = "../plots/ratio_dentforce_over_original")
+                      const char* new_file,
+                      const char* out_root_file = "../output_files/ratio_1000us_over_30us.root",
+                      const char* out_png_dir = "../plots/ratio_1000us_over_30us")
 {
   gSystem->mkdir(out_png_dir, true);
 
   TFile* f_orig = TFile::Open(original_file, "READ");
-  TFile* f_dent = TFile::Open(dentforce_file, "READ");
+  TFile* f_dent = TFile::Open(new_file, "READ");
 
   if (!f_orig || f_orig->IsZombie()) {
     std::cerr << "ERROR: Could not open original file: " << original_file << std::endl;
@@ -190,7 +191,7 @@ void make_ratio_plots(const char* original_file,
   }
 
   if (!f_dent || f_dent->IsZombie()) {
-    std::cerr << "ERROR: Could not open DENTFORCE file: " << dentforce_file << std::endl;
+    std::cerr << "ERROR: Could not open DENTFORCE file: " << new_file << std::endl;
     return;
   }
 
