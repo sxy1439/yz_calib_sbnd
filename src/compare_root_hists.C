@@ -333,6 +333,11 @@
 #include <iostream>
 #include <algorithm>
 
+// Labels for the two files (first file = "before", second = "after").
+// TLatex syntax: #mu gives the Greek mu.
+TString g_label_before = "30 #mus";
+TString g_label_after  = "1000 #mus";
+
 static TString sanitize(TString s) {
   s.ReplaceAll("/", "__");
   s.ReplaceAll(" ", "_");
@@ -426,8 +431,8 @@ double hist_median(TH1* h)
 void compare_histograms_2d(TH2* h_before, TH2* h_after, const TString& outname) {
   if (!h_before || !h_after) return;
 
-  TH2* hb = (TH2*)h_before->Clone(TString(h_before->GetName()) + "_Old");
-  TH2* ha = (TH2*)h_after->Clone(TString(h_after->GetName()) + "_New");
+  TH2* hb = (TH2*)h_before->Clone(TString(h_before->GetName()) + "_30us");
+  TH2* ha = (TH2*)h_after->Clone(TString(h_after->GetName()) + "_1000us");
 
   // Keep original titles from the ROOT file
   // // Force both plots to use Run 1 natural z range
@@ -505,8 +510,8 @@ void draw_histograms_1d_counts(TH1* h_before, TH1* h_after, const TString& outna
   ha->Draw("HIST SAME");
 
   TLegend* leg = new TLegend(0.68, 0.78, 0.90, 0.90);
-  leg->AddEntry(hb, "Old", "l");
-  leg->AddEntry(ha, "New", "l");
+  leg->AddEntry(hb, g_label_before, "l");
+  leg->AddEntry(ha, g_label_after, "l");
   leg->SetBorderSize(1);
   leg->SetFillStyle(1001);
   leg->Draw();
@@ -522,10 +527,10 @@ void draw_histograms_1d_counts(TH1* h_before, TH1* h_after, const TString& outna
   //                     hb->GetEntries(), hb->GetMean(), median_old, hb->GetStdDev()));
   // stats->AddText(Form("New: N=%.3g, #mu=%.1f, med=%.1f, #sigma=%.1f",
   //                     ha->GetEntries(), ha->GetMean(), median_new, ha->GetStdDev()));
-  stats->AddText(Form("Old: N=%.3g,  med=%.1f, #sigma=%.1f",
-                      hb->GetEntries(), median_old, hb->GetStdDev()));
-  stats->AddText(Form("New: N=%.3g,  med=%.1f, #sigma=%.1f",
-                      ha->GetEntries(), median_new, ha->GetStdDev()));
+  stats->AddText(Form("%s: N=%.3g,  med=%.1f, #sigma=%.1f",
+                      g_label_before.Data(), hb->GetEntries(), median_old, hb->GetStdDev()));
+  stats->AddText(Form("%s: N=%.3g,  med=%.1f, #sigma=%.1f",
+                      g_label_after.Data(), ha->GetEntries(), median_new, ha->GetStdDev()));
   stats->Draw();
 
   c->Modified();
@@ -575,13 +580,14 @@ void draw_histograms_1d_shape(TH1* h_before, TH1* h_after, const TString& outnam
 
   double ymax = std::max(hb->GetMaximum(), ha->GetMaximum());
   hb->SetMaximum(1.15 * ymax);
+  hb->SetMinimum(0);  // start y-axis at 0 so low values are not cut off
 
   hb->Draw("HIST");
   ha->Draw("HIST SAME");
 
   TLegend* leg = new TLegend(0.68, 0.78, 0.90, 0.90);
-  leg->AddEntry(hb, "Old", "l");
-  leg->AddEntry(ha, "New", "l");
+  leg->AddEntry(hb, g_label_before, "l");
+  leg->AddEntry(ha, g_label_after, "l");
   leg->SetBorderSize(1);
   leg->SetFillStyle(1001);
   leg->Draw();
@@ -598,10 +604,10 @@ void draw_histograms_1d_shape(TH1* h_before, TH1* h_after, const TString& outnam
   //                     ha->GetMean(), ha->GetStdDev()));
 
 
-  stats->AddText(Form("Old: med=%.1f, #sigma=%.1f",
-                      median_old, hb->GetStdDev()));
-  stats->AddText(Form("New: med=%.1f, #sigma=%.1f",
-                      median_new, ha->GetStdDev()));
+  stats->AddText(Form("%s: med=%.1f, #sigma=%.1f",
+                      g_label_before.Data(), median_old, hb->GetStdDev()));
+  stats->AddText(Form("%s: med=%.1f, #sigma=%.1f",
+                      g_label_after.Data(), median_new, ha->GetStdDev()));
   stats->Draw();
 
   c->Modified();
