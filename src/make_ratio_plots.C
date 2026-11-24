@@ -177,8 +177,8 @@ void save_ratio_png(TH2* h,
 // void make ratio() does new / original ratio 
 void make_ratio_plots(const char* original_file,
                       const char* new_file,
-                      const char* out_root_file = "../output_files/ratio_1000us_over_30us.root",
-                      const char* out_png_dir = "../plots/ratio_1000us_over_30us")
+                      const char* out_root_file = "../output_files/ratio_1000ms_over_30ms.root",
+                      const char* out_png_dir = "../plots/ratio_1000ms_over_30ms")
 {
   gSystem->mkdir(out_png_dir, true);
 

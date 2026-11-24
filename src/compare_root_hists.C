@@ -334,9 +334,12 @@
 #include <algorithm>
 
 // Labels for the two files (first file = "before", second = "after").
-// TLatex syntax: #mu gives the Greek mu.
-TString g_label_before = "30 #mus";
-TString g_label_after  = "1000 #mus";
+// // TLatex syntax: #mu gives the Greek mu.
+// TString g_label_before = "30 #mus";
+// TString g_label_after  = "1000 #mus";
+
+TString g_label_before = "30 ms";
+TString g_label_after  = "1000 ms";
 
 static TString sanitize(TString s) {
   s.ReplaceAll("/", "__");
@@ -431,8 +434,8 @@ double hist_median(TH1* h)
 void compare_histograms_2d(TH2* h_before, TH2* h_after, const TString& outname) {
   if (!h_before || !h_after) return;
 
-  TH2* hb = (TH2*)h_before->Clone(TString(h_before->GetName()) + "_30us");
-  TH2* ha = (TH2*)h_after->Clone(TString(h_after->GetName()) + "_1000us");
+  TH2* hb = (TH2*)h_before->Clone(TString(h_before->GetName()) + "_30ms");
+  TH2* ha = (TH2*)h_after->Clone(TString(h_after->GetName()) + "_1000ms");
 
   // Keep original titles from the ROOT file
   // // Force both plots to use Run 1 natural z range
