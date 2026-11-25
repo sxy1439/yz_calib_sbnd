@@ -146,7 +146,7 @@ void save_ratio_png(TH2* h,
   c->SetRightMargin(0.19);
   c->SetTopMargin(0.08);
 
-  TString ztitle = "1000 #mus / 30 #mus";
+  TString ztitle = "1000 ms / 30 ms";
 
   if (name.BeginsWith("ratio_CzyHist_")) {
     ztitle = "Correction factor ratio";
@@ -166,7 +166,7 @@ void save_ratio_png(TH2* h,
 
   DrawLabel(GetTPCLabel(name), 0.7, 0.15, 0.95, kBlack, 12);
   DrawLabel("SBND Data", 0.7, 0.85, 0.95, kBlack, 32);
-  DrawLabel("1000 #mus / 30 #mus lifetime comparison", 0.48, 0.49, 0.95, kBlack, 22);
+  DrawLabel("1000 ms / 30 ms lifetime comparison", 0.48, 0.49, 0.95, kBlack, 22);
 
   TString pngname = Form("%s/%s.png", outdir.Data(), name.Data());
   c->SaveAs(pngname);
